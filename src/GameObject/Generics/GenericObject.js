@@ -15,18 +15,20 @@ class GenericObject {
 
     render() {
         // draw bounding box rectangle
+        
         if (CONFIG.debug) {
           let bb = this.getBoundingBox();
+
           ctx.translate(bb.x, bb.y);
           ctx.strokeRect(0, 0, bb.w, bb.h);
           ctx.resetTransform();
         }
       }
 
-    getBoundingBox(){
+    getBoundingBox(){    
         return {
-            x: this.x - this.width / 2,
-            y: this.y - this.height / 2,
+            x: this.x,
+            y: - this.y - this.height + CONFIG.canvas.height - 50,
             w: this.width,
             h: this.height,
         };

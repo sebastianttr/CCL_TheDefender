@@ -1,10 +1,10 @@
 /**
  * 
- * This will be my game framework called GameWorks
+ * This will be my game framework called Cue
  * 
  */
 
-class GameWorks {
+class Cue {
 
     #init;
     #update;
@@ -97,4 +97,4 @@ class GameWorks {
     }
 }
 
-export default GameWorks;
+export default Cue;

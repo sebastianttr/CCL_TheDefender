@@ -29,7 +29,22 @@ class BackgroundHandler {
         }
         else { //canvas
 
+            ctx.drawImage(
+                this.backgroundImg, 
+                -x + this.offsetX,
+                y - this.offsetY
+            )
+            
         }
+    }
+
+    render(){
+        ctx.drawImage(
+            this.backgroundImg, 
+            -this.x + this.offsetX,
+            this.y - this.offsetY
+        )
+        ctx.resetTransform();
     }
 
     changeBackgroundImg(backgroundImg){
