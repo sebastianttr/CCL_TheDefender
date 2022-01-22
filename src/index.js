@@ -105,7 +105,7 @@ const initGame = () => {
             gameObjects.push(new Vehicle(1500, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
             gameObjects.push(new Vehicle(2500, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
 
-            gameObjects.push(new Crate(300,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+            gameObjects.push(new Crate(600 - this.assets.playerSpriteIdle.extras.frameSize.width - this.assets.crate1.width,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
             gameObjects.push(new Crate(1200,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
 
             gameObjects.push(new Billboard(1200, 0, this.assets.billboard1.width, this.assets.billboard1.height, this.assets.billboard1))
@@ -137,9 +137,8 @@ const initGame = () => {
                 }
                 else{
                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
-                       
                         this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
-                    }
+                    } 
                     
                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
                     {

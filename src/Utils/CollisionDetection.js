@@ -32,13 +32,13 @@ let checkCollisionDirectional = (gameObjectA, gameObjectB) => {
     // left si right
     if(distanceAToB_Left <= 10) {
         if(distanceAToB_Left <= 0 && distanceAToB_Left + bbA.w / 4 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
-            return ["left", bbB.x - bbA.w - 1]
+            return ["left", bbB.x - bbA.w]
         }
     }
     
     if(distanceAToB_Right <= 10) {
         if(distanceAToB_Right <= 0 && distanceAToB_Right + bbA.w / 4 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
-            return ["right", bbB.x + bbB.w + 1]
+            return ["right", bbB.x + bbB.w]
         }
     }
 
@@ -67,11 +67,7 @@ let checkCollisionDirectionalHorizontal = (gameObjectA, gameObjectB) => {
     // right
     let distanceAToB_Right = (bbA.x) - (bbB.x + bbB.w)
 
-    // top
-    let distanceAToB_Top = (bbB.y) - (bbA.y + bbA.h)
 
-    // bottom
-    let distanceAToB_Bottom = (CONFIG.canvas.height - bbB.y - bbB.h) - (CONFIG.canvas.height - bbA.y)
 
     if(distanceAToB_Left <= 10) {
         if(distanceAToB_Left <= 0 && distanceAToB_Left + bbA.w / 10 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
@@ -92,11 +88,6 @@ let checkCollisionDirectionalVertical = (gameObjectA, gameObjectB) => {
     let bbA = gameObjectA.getBoundingBox();
     let bbB = gameObjectB.getBoundingBox();
     
-    // left
-    let distanceAToB_Left = (bbB.x) - (bbA.x + bbA.w)
-
-    // right
-    let distanceAToB_Right = (bbA.x) - (bbB.x + bbB.w)
 
     // top
     let distanceAToB_Top = (bbB.y) - (bbA.y + bbA.h)
