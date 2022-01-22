@@ -20,7 +20,7 @@ class Defender extends GenericObject{
         this.velocityY = 0;
         this.translateState = "idle";
         this.spriteDirection = 1;           // 1 = right ; -1 = left
-        this.gravity =  2;
+        this.gravity =  6;
 
         this.boundingState="none";
 
@@ -97,48 +97,14 @@ class Defender extends GenericObject{
 
         this.boundingState = this.getBoundaries();
 
-        if (this.x < this.width)                         this.x = this.width;
-        if (this.x > CONFIG.canvas.width - this.width)   this.x = CONFIG.canvas.width - this.width
+        if (this.x < this.width)                                        this.x = this.width;
+        if (this.x + this.width > CONFIG.canvas.width - this.width)   this.x = CONFIG.canvas.width - this.width * 2
 
-        let gameObject
-        
-            if(this.x >= gameObjects[0].x + gameObjects[0].width + 400) {
-                this.whichObjectToCollide = 1
-
-                console.log("da")
-
-                gameObject = gameObjects[this.whichObjectToCollide]
-            }
-            else if(this.x < gameObjects[0].x + gameObjects[0].width + 400) {
-                this.whichObjectToCollide = 0
-
-                gameObject = gameObjects[this.whichObjectToCollide]
-            }
-            
-        
-            if(checkCollisionDirectional(this,gameObject)[0] === "left"){
-                this.x = checkCollisionDirectional(this,gameObject)[1]
-            }
-            else if(checkCollisionDirectional(this,gameObject)[0] === "right") 
-            {
-                this.x = checkCollisionDirectional(this,gameObject)[1]
-            }
-            
-            if(checkCollisionDirectional(this,gameObject)[0] === "top") 
-            {
-                this.y = checkCollisionDirectional(this,gameObject)[1]
-                this.velocityY = 0
-            }
-            else if(checkCollisionDirectional(this,gameObject)[0] === "bottom") 
-            {
-                this.y = checkCollisionDirectional(this,gameObject)[1]
-            }
-        
     }
 
     getBoundaries(){
         if (this.x < this.width)                          return "left";
-        if (this.x > CONFIG.canvas.width - this.width)    return "right";
+        if (this.x + this.width> CONFIG.canvas.width - this.width)    return "right";
 
         // if nothing else
         return "none";

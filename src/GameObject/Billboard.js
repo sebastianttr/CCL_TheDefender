@@ -18,6 +18,16 @@ class Billboard extends GenericObject{
             this.height
         );  
     }
+
+    getBoundingBox(){    
+        return {
+            x: this.x,
+            y: - this.y - this.height + CONFIG.canvas.height + 80,
+            w: this.width,
+            h: 20,
+        };
+    }
+
 }
 
 export default Billboard;

@@ -3,17 +3,14 @@ import {CONFIG,ctx} from "../commons.js"
 let checkCollisionBetween = (gameObjectA, gameObjectB) => {
     let bbA = gameObjectA.getBoundingBox();
     let bbB = gameObjectB.getBoundingBox();
-
-    let collisionDetection = 
-        bbA.x < bbB.x + bbB.w &&
-        bbA.x + bbA.w > bbB.x &&
-        CONFIG.canvas.height - bbA.y < CONFIG.canvas.height - bbB.y + bbB.h &&
-        CONFIG.canvas.height - bbA.y + bbA.h > CONFIG.canvas.height - bbB.y
-
-    return collisionDetection;
-};
-
-
+  
+    return (
+      bbA.x < bbB.x + bbB.w &&
+      bbA.x + bbA.w > bbB.x &&
+      bbA.y < bbB.y + bbB.h &&
+      bbA.y + bbA.h > bbB.y
+    );
+  };
 
 // MADE BY SEBASTIAN AND STEFAN IN THE MIDDLE OF THE NIGHT 
 let checkCollisionDirectional = (gameObjectA, gameObjectB) => {
@@ -32,29 +29,94 @@ let checkCollisionDirectional = (gameObjectA, gameObjectB) => {
     // bottom
     let distanceAToB_Bottom = (CONFIG.canvas.height - bbB.y - bbB.h) - (CONFIG.canvas.height - bbA.y)
 
-    console.log(distanceAToB_Left, distanceAToB_Right)
- 
     // left si right
-    if(distanceAToB_Left <= 0 && checkCollisionDirectional.distanceAToB_Left_Previous >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
-        return ["left", bbB.x - bbA.w ]
-    }
-    else if(distanceAToB_Right <= 0 && checkCollisionDirectional.distanceAToB_Right_Previous >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
-        return ["right", bbB.x + bbB.w ]
+    if(distanceAToB_Left <= 10) {
+        if(distanceAToB_Left <= 0 && distanceAToB_Left + bbA.w / 4 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
+            return ["left", bbB.x - bbA.w - 1]
+        }
     }
     
-    if(distanceAToB_Top <= 0 && checkCollisionDirectional.distanceAToB_Top_Previous >= 0  && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
-        return ["top", CONFIG.canvas.height - bbB.y - 50]
-    }
-    else if(distanceAToB_Bottom <= 0 && checkCollisionDirectional.distanceAToB_Bottom_Previous >= 0 && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
-        return ["bottom", CONFIG.canvas.height - bbB.y - bbB.h - 50 - bbA.h]
+    if(distanceAToB_Right <= 10) {
+        if(distanceAToB_Right <= 0 && distanceAToB_Right + bbA.w / 4 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
+            return ["right", bbB.x + bbB.w + 1]
+        }
     }
 
-    checkCollisionDirectional.distanceAToB_Left_Previous = distanceAToB_Left
-    checkCollisionDirectional.distanceAToB_Right_Previous = distanceAToB_Right
-    checkCollisionDirectional.distanceAToB_Top_Previous = distanceAToB_Top
-    checkCollisionDirectional.distanceAToB_Bottom_Previous = distanceAToB_Bottom
+    if(distanceAToB_Top <= 10) {
+        if(distanceAToB_Top <= 0 && distanceAToB_Top + bbA.h / 2 >= 0  && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
+            return ["top", CONFIG.canvas.height - bbB.y - 50]
+        }
+    }
+
+    if(distanceAToB_Bottom <= 10) {
+        if(distanceAToB_Bottom <= 0 && distanceAToB_Bottom + bbA.h / 2 >= 0 && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
+            return ["bottom", CONFIG.canvas.height - bbB.y - bbB.h - 50 - bbA.h]
+        }
+    }
 
     return []; // if nothing
 }
 
-export {checkCollisionBetween,checkCollisionDirectional}
+let checkCollisionDirectionalHorizontal = (gameObjectA, gameObjectB) => {
+    let bbA = gameObjectA.getBoundingBox();
+    let bbB = gameObjectB.getBoundingBox();
+    
+    // left
+    let distanceAToB_Left = (bbB.x) - (bbA.x + bbA.w)
+
+    // right
+    let distanceAToB_Right = (bbA.x) - (bbB.x + bbB.w)
+
+    // top
+    let distanceAToB_Top = (bbB.y) - (bbA.y + bbA.h)
+
+    // bottom
+    let distanceAToB_Bottom = (CONFIG.canvas.height - bbB.y - bbB.h) - (CONFIG.canvas.height - bbA.y)
+
+    if(distanceAToB_Left <= 10) {
+        if(distanceAToB_Left <= 0 && distanceAToB_Left + bbA.w / 10 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
+            return ["left", bbB.x - bbA.w]
+        }
+    }
+    
+    if(distanceAToB_Right <= 10) {
+        if(distanceAToB_Right <= 0 && distanceAToB_Right + bbA.w / 4 >= 0 && ((CONFIG.canvas.height - bbA.y - bbA.h >= CONFIG.canvas.height - bbB.y - bbB.h && CONFIG.canvas.height - bbA.y - bbA.h <= CONFIG.canvas.height - bbB.y) || (CONFIG.canvas.height - bbA.y <= CONFIG.canvas.height - bbB.y && CONFIG.canvas.height - bbA.y >= CONFIG.canvas.height - bbB.y - bbB.h )) ){
+            return ["right", bbB.x + bbB.w]
+        }
+    }
+
+    return []; // if nothing
+}
+
+let checkCollisionDirectionalVertical = (gameObjectA, gameObjectB) => {
+    let bbA = gameObjectA.getBoundingBox();
+    let bbB = gameObjectB.getBoundingBox();
+    
+    // left
+    let distanceAToB_Left = (bbB.x) - (bbA.x + bbA.w)
+
+    // right
+    let distanceAToB_Right = (bbA.x) - (bbB.x + bbB.w)
+
+    // top
+    let distanceAToB_Top = (bbB.y) - (bbA.y + bbA.h)
+
+    // bottom
+    let distanceAToB_Bottom = (CONFIG.canvas.height - bbB.y - bbB.h) - (CONFIG.canvas.height - bbA.y)
+
+    if(distanceAToB_Top <= 10) {
+        if(distanceAToB_Top <= 0 && distanceAToB_Top + bbA.h / 10 >= 0  && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
+            return ["top", CONFIG.canvas.height - bbB.y - 50]
+        }
+    }
+
+    if(distanceAToB_Bottom <= 10) {
+        if(distanceAToB_Bottom <= 0 && distanceAToB_Bottom + bbA.h / 10 >= 0 && bbA.x + bbA.w >= bbB.x && bbA.x <= bbB.x + bbB.w){
+            return ["bottom", CONFIG.canvas.height - bbB.y - bbB.h - 50 - bbA.h]
+        }
+    }
+
+    return []; // if nothing
+}
+
+export {checkCollisionBetween, checkCollisionDirectional,checkCollisionDirectionalHorizontal,checkCollisionDirectionalVertical}
