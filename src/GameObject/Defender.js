@@ -1,7 +1,7 @@
 import GenericObject from "./Generics/GenericObject.js";
 import KeyboardHandler from "../Utils/KeyboardHandler.js";
 import Sprite from "../Utils/Sprite.js";
-import {CONFIG,ctx} from "../commons.js"
+import {CONFIG,canvas,ctx,map} from "../commons.js"
 import { checkCollisionBetween, checkCollisionDirectional } from "../Utils/CollisionDetection.js";
 import {gameObjects} from "../index.js"
 
@@ -22,6 +22,16 @@ class Defender extends GenericObject{
         this.spriteDirection = 1;           // 1 = right ; -1 = left
         this.gravity =  6;
 
+        this.mousePositions = {
+            x:0,
+            y:0,
+        }
+
+        this.headAngle = 0;
+        this.headElevation = 0;
+
+        this.armAngle = 0;
+
         this.boundingState="none";
 
         this.whichObjectToCollide = 0
@@ -32,6 +42,13 @@ class Defender extends GenericObject{
     init(){
         // set the key handler
         this.keyboardHandler = new KeyboardHandler({nocallbacks:true});
+
+        canvas.addEventListener("mousemove",(e)=>{
+            let clientRect = canvas.getBoundingClientRect();
+            this.mousePositions.x = Math.round(e.clientX - clientRect.left)
+            this.mousePositions.y = Math.round(e.clientY - clientRect.top)
+            //console.log(this.mousePositions.x)
+        })
 
         this.sprites["idle"] = 
             new Sprite(
@@ -62,49 +79,78 @@ class Defender extends GenericObject{
 
     update(timePassedSinceLastRender){
 
-        if(this.keyboardHandler.keys["ArrowLeft"]) this.dx = -1;
-        else if (this.keyboardHandler.keys["ArrowRight"]) this.dx = 1;
+        if(this.keyboardHandler.keys["ArrowLeft"] || this.keyboardHandler.keys["KeyA"]) this.dx = -1;
+        else if (this.keyboardHandler.keys["ArrowRight"] || this.keyboardHandler.keys["KeyD"]) this.dx = 1;
         else this.dx = 0;
 
-        if(this.dx !== 0) this.spriteDirection = this.dx;
+        // set direction
+        //if(this.dx !== 0) this.spriteDirection = this.dx;
 
-        if(this.translateState === "jump"){
-            // handle jump with PhysicsEngine
-        }
-
+        // calc X pos
         this.x += 
             timePassedSinceLastRender * this.velocityX * this.dx
 
-      
-
-        if(this.keyboardHandler.keys["Space"] && this.velocityY == 0){
+        // apply velocity on Space key press
+        if((this.keyboardHandler.keys["Space"] || this.keyboardHandler.keys["KeyW"]) && this.velocityY == 0){
             this.velocityY =  50;
         }
 
-        
-
+        //calculate velocity
         this.velocityY -= timePassedSinceLastRender * this.gravity  / 50
         this.y +=  this.velocityY * timePassedSinceLastRender / 50
 
-      
 
+        // limit 
         if(this.y <= 0) {
             this.y = 0;
             this.velocityY = 0
         }
        
+        // set player state for sprite
         this.setPlayerState();
 
+        // get the bounding state
         this.boundingState = this.getBoundaries();
 
-        if (this.x < this.width)                                        this.x = this.width;
-        if (this.x + this.width > CONFIG.canvas.width - this.width)   this.x = CONFIG.canvas.width - this.width * 2
+        //set pos of player depending on the bounding state
+        if (this.boundingState == "left")           this.x = this.width;
+        else if (this.boundingState == "right")     this.x = CONFIG.canvas.width - this.width * 2
 
+       
+        //calculate angle of head
+        let headPos = this.getPlayerHeadPosition();
+        let oppositeLen = this.mousePositions.y - headPos.y
+        let adjacentLen = this.mousePositions.x - headPos.x
+
+        this.headAngle = Math.atan(oppositeLen/adjacentLen)
+
+        let armPos = this.getPlayerArmPosition();
+        oppositeLen = this.mousePositions.y - armPos.y
+        adjacentLen = this.mousePositions.x - armPos.x
+
+        if(this.mousePositions.x >= armPos.x)
+            this.armAngle = Math.atan(oppositeLen/adjacentLen)
+        else this.armAngle = -1 * Math.atan(oppositeLen/adjacentLen)
+
+
+        this.spriteDirection = (this.mousePositions.x >= headPos.x)?1:-1;
+
+        // calulate head elevation based on angle, so the head does not look weirddw
+        /*
+        let percentage = 
+            (this.headAngle < 0)
+            ?map(this.headAngle * this.spriteDirection,0,-Math.PI/2,0,100)
+            :map(this.headAngle * this.spriteDirection,0,Math.PI/2,100,0); 
+        */
+
+        
+        this.headElevation = 10 * map(this.headAngle * this.spriteDirection,0,-Math.PI/2 * this.spriteDirection,0,this.spriteDirection);   // 10 seem like a good value to elevate between
+        
     }
 
     getBoundaries(){
-        if (this.x < this.width)                          return "left";
-        if (this.x + this.width> CONFIG.canvas.width - this.width)    return "right";
+        if (this.x < this.width)                                            return "left";
+        else if (this.x + this.width > CONFIG.canvas.width - this.width)    return "right";
 
         // if nothing else
         return "none";
@@ -117,14 +163,51 @@ class Defender extends GenericObject{
             this.translateState = "jump"
         else                    // idle
             this.translateState = "idle"
+    }
+
+    getPlayerHeadPosition() {
+        return {
+            x: this.x + this.spritesheets.defenderHead.naturalWidth/2,
+            y: -this.y - this.height + this.spritesheets.defenderHead.naturalHeight/2 + 7 + CONFIG.canvas.height - 50   // WTF ???
+        }
+    }
+
+    getPlayerArmPosition(){
+        return {
+            x:  this.x + this.spritesheets.defenderHead.naturalWidth/2,
+            y: -this.y + CONFIG.canvas.height - 50 - (this.height * 0.60)
+        }
+    }
+
+    getPlayerHandPosition() {
 
     }
 
     render() {
         super.render();
+ 
+        // render head
+        ctx.translate(
+            this.getPlayerHeadPosition().x,
+            this.getPlayerHeadPosition().y + this.headElevation
+        );
+        ctx.rotate(this.headAngle);
+        ctx.scale(this.spriteDirection,1);
+        ctx.drawImage(
+            this.spritesheets.defenderHead,
+            -this.spritesheets.defenderHead.naturalWidth/2,
+            -this.spritesheets.defenderHead.naturalHeight/2,
+            this.spritesheets.defenderHead.naturalWidth,
+            this.spritesheets.defenderHead.naturalHeight
+        );
 
-        ctx.translate(this.x + this.width / 2, -this.y + -this.height / 2 + CONFIG.canvas.height - 50);
+        ctx.resetTransform();
 
+       
+
+
+        // render body
+        ctx.translate(this.x + this.width / 2, -this.y -this.height / 2 + CONFIG.canvas.height - 50);
         ctx.scale(this.spriteDirection,1);
 
         let currentFrame = this.sprites[this.translateState].getSpriteFrame("up");
@@ -139,6 +222,25 @@ class Defender extends GenericObject{
             -this.height / 2, // destination y
             this.width,
             this.height
+        );
+
+        ctx.resetTransform();
+
+
+         // render arm
+         ctx.translate(
+            this.getPlayerArmPosition().x,
+            this.getPlayerArmPosition().y
+        )
+        ctx.scale(this.spriteDirection,1);
+        ctx.rotate(this.armAngle);
+
+        ctx.drawImage(
+            this.spritesheets.defenderArm,
+            -10,
+            -10,
+            this.spritesheets.defenderArm.naturalWidth,
+            this.spritesheets.defenderArm.naturalHeight
         );
 
         ctx.resetTransform();

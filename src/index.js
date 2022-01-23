@@ -16,7 +16,6 @@ const initGame = () => {
         preloads:{
             groundImg1:{
                 src:"./Assets/sprites/landscape/Landscape_sprite_1.png",
-                
                 type: Image
             },
             vehicle1:{
@@ -43,7 +42,14 @@ const initGame = () => {
                 src:"./Assets/Moveable_Crate.png",
                 type: Image
             },
-
+            defenderHead: {
+                src:"./Assets/TheDefender_head.png",
+                type: Image
+            },
+            defenderArm: {
+                src:"./Assets/TheDefender_arm.png",
+                type: Image
+            },
             playerSpriteIdle: {
                 src:"./Assets/sprites/player/idle/spritesheet_idle.png",
                 type: Image,
