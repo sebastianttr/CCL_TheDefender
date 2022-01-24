@@ -6,9 +6,10 @@ import BackgroundHandler from "./Services/BackgroundHandler.js";
 import Vehicle from "./GameObject/Vehicle.js";
 import Billboard from "./GameObject/Billboard.js";
 import Crate from "./GameObject/Crate.js";
-import { checkCollisionBetween,checkCollisionDirectional, checkCollisionDirectionalVertical,checkCollisionDirectionalHorizontal } from "./Utils/CollisionDetection.js";
+import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
 
 let gameObjects = [];
+let projectiles = [];
 let collisionObjects = [];
 
 const initGame = () => {
@@ -125,47 +126,63 @@ const initGame = () => {
 
             gameObjects.forEach((gameObject) => {
                 if(
-                   (checkCollisionDirectionalHorizontal(this.defender, gameObject)[0] == "left" 
-                    || checkCollisionDirectionalHorizontal(this.defender, gameObject)[0] == "right") 
-                    && gameObject instanceof Crate){
-                    //gameObject.x = this.defender.x + this.defender.width + 1;
-                    
-                    if(this.defender.dx == 1 
-                        && this.defender.y == 0
-                        ) {
-                        gameObject.x = this.defender.x + this.defender.width + 1;
-                    }
-                    else if(this.defender.dx == -1 
-                        && this.defender.y == 0
-                        ){
-                        gameObject.x = this.defender.x - gameObject.width - 1;
-                    }
-                }
-                else{
-                    if(checkCollisionDirectional(this.defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
-                        this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
-                    } 
-                    
-                    if(checkCollisionDirectional(this.defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
-                    {
-                        this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
-                    }
-                    
-                    if(checkCollisionDirectional(this.defender, gameObject)[0] === "top") 
-                    {
-                        
-                        this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
-                        this.defender.velocityY = 0
-                    }
-                    
-                    if(checkCollisionDirectional(this.defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
-                    {
-                        this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
-                        this.defender.velocityY = 0
-                    }
-                }
+                    (checkCollisionDirectional(this.defender, gameObject)[0] == "left" 
+                     || checkCollisionDirectional(this.defender, gameObject)[0] == "right") 
+                     && gameObject instanceof Crate){
+                     
+                     if(checkCollisionDirectional(this.defender, gameObject)[0] == "left") {
+                         gameObject.x = this.defender.x + this.defender.width + 1;
+                     }
+                     else if(checkCollisionDirectional(this.defender, gameObject)[0] == "right") {
+                         gameObject.x = this.defender.x - gameObject.width - 1;
+                     }
+                 }
+                 else{
+                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
+                         this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
+                     } 
+                     
+                     
+                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
+                     {
+                         this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
+                     }
+                     
+                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "top" ) 
+                     {
+                         this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
+                         this.defender.velocityY = 0
+                         
+                         this.defender.canJump = true
+                     }
+                     
+                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
+                     {
+                         this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
+                         this.defender.velocityY = 0
+                         this.defender.canJump = false
+                         
+                     }
+                 }
                 gameObject.update(timePassedSinceLastRender);
             });
+
+
+            let projectilesToRemove = [];
+            
+            projectiles.forEach((projectile)=> {
+                if(projectile.x > CONFIG.canvas.width || projectile.x < 0 || projectile.y > CONFIG.canvas.height || projectile.y < 0 ){
+                    projectilesToRemove.push(projectile)
+                }
+                else {
+                    projectile.update();
+                }
+            })
+
+            projectilesToRemove.forEach((projectile)=> {
+                projectiles.splice(projectiles.indexOf(projectile),1)
+                console.log("removed a projectile")
+            })
 
             /*
 
@@ -235,9 +252,11 @@ const initGame = () => {
 
             gameObjects.forEach((gameObject) => {  
                 gameObject = this.shiftObjectRelativeToPlayer(gameObject,false)
-
-               
                 gameObject.render();                
+            })
+
+            projectiles.forEach((projectile)=> {
+                projectile.render();
             })
 
 
@@ -339,4 +358,4 @@ window.addEventListener("load", () => {
     initGame();
 })
 
-export {gameObjects}
+export {gameObjects,projectiles}

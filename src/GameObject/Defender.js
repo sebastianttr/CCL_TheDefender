@@ -1,9 +1,10 @@
 import GenericObject from "./Generics/GenericObject.js";
 import KeyboardHandler from "../Utils/KeyboardHandler.js";
 import Sprite from "../Utils/Sprite.js";
+import Projectile from "./Projectile.js";
 import {CONFIG,canvas,ctx,map} from "../commons.js"
 import { checkCollisionBetween, checkCollisionDirectional } from "../Utils/CollisionDetection.js";
-import {gameObjects} from "../index.js"
+import {gameObjects,projectiles} from "../index.js"
 
 class Defender extends GenericObject{
     #HAND_X = 38;       //px
@@ -41,6 +42,8 @@ class Defender extends GenericObject{
         this.whichObjectToCollide = 0
 
         this.init();
+
+        this.canJump = true
     }
 
     init(){
@@ -52,6 +55,26 @@ class Defender extends GenericObject{
             this.mousePositions.x = Math.round(e.clientX - clientRect.left)
             this.mousePositions.y = Math.round(e.clientY - clientRect.top)
             //console.log(this.mousePositions.x)
+        })
+
+        canvas.addEventListener("mousedown", () => {
+            //if(projectiles.length < 1)
+                projectiles.push(
+                    new Projectile(
+                        this.getPlayerArmPosition().x,
+                        this.getPlayerArmPosition().y,
+                        20,
+                        20,
+                        {
+                            x: this.getPlayerArmPosition().x,
+                            y: this.getPlayerArmPosition().y
+                        },
+                        {
+                            x: this.mousePositions.x,
+                            y: this.mousePositions.y
+                        }
+                    )
+                )
         })
 
         this.sprites["idle"] = 
@@ -95,8 +118,8 @@ class Defender extends GenericObject{
             timePassedSinceLastRender * this.velocityX * this.dx
 
         // apply velocity on Space key press
-        if((this.keyboardHandler.keys["Space"] || this.keyboardHandler.keys["KeyW"]) && this.velocityY == 0){
-            this.velocityY =  50;
+        if((this.keyboardHandler.keys["Space"] || this.keyboardHandler.keys["KeyW"]) && this.velocityY == 0 && this.canJump){
+            this.velocityY = 50;
         }
 
         //calculate velocity
@@ -108,6 +131,7 @@ class Defender extends GenericObject{
         if(this.y <= 0) {
             this.y = 0;
             this.velocityY = 0
+            this.canJump = true
         }
        
         // set player state for sprite
@@ -131,12 +155,12 @@ class Defender extends GenericObject{
         //calculate the angle for the hand to aim at the mouse point
 
         let armPos = this.getPlayerArmPosition();
-        oppositeLen = this.mousePositions.y - armPos.yddd
-        adjacentLen = this.mousePositions.x - armPos.x
+        oppositeLen = this.mousePositions.y - armPos.y
+        adjacentLen = this.mousePositions.x - armPos.x  
 
-        if(this.mousePositions.x >= armPos.x)
-            this.armAngle = Math.atan(oppositeLen/adjacentLen)
-        else this.armAngle = -1 * Math.atan(oppositeLen/adjacentLen)
+        this.armAngle = Math.atan(oppositeLen/adjacentLen)
+
+        //console.log(this.armAngle)
 
         // calculate angle and pos of hand relative to arm pivot point
         const l = Math.round(Math.sqrt(Math.abs(this.mousePositions.x - armPos.x)**2 + Math.abs(this.mousePositions.y - armPos.y)**2))
@@ -246,8 +270,10 @@ class Defender extends GenericObject{
             this.getPlayerArmPosition().x,
             this.getPlayerArmPosition().y
         )
-        ctx.scale(this.spriteDirection,1);
+
+        //console.log(this.armAngle)
         ctx.rotate(this.armAngle);
+        ctx.scale(this.spriteDirection,1);
 
         ctx.drawImage(
             this.spritesheets.defenderArm,

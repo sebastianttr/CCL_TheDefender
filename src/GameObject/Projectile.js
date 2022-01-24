@@ -1,10 +1,10 @@
 import GenericObject from "./Generics/GenericObject.js";
-import {CONFIG,ctx} from "../commons.js"
+import {CONFIG,canvas,ctx} from "../commons.js"
+
 
 class Projectile extends GenericObject{
     constructor(x,y,height,width, start, end){
         super(x,y,height,width);
-        this.image = image;
         this.startX = start.x;
         this.startY = start.y;
 
@@ -16,25 +16,63 @@ class Projectile extends GenericObject{
 
         this.distance = 0; // hypot
 
-        this.projectileVelocity = 3;
+        this.projectileVelocity = 10;
 
-        // fixed angle 
-        this.angle = Math.atan(Math.abs(this.endY - this.startY) / Math.abs(this.endX - this.startX))
+        
 
+        this.init();
+
+    }
+
+    init(){
+
+        let newX = this.endX - this.startX;
+        let newY = this.endY - this.startY;
+
+        let distance = Math.sqrt(newX**2 + newY**2);
+
+        newX = newX / distance;
+        newY = newY / distance;
+
+        this.dx = newX// * this.projectileVelocity;
+        this.dy = newY
 
     }
 
     update(){
-        this.distance = Math.sqrt(this.y**2 / this.x**2) * this.projectileVelocity
+        this.x += (this.projectileVelocity ) * this.dx
+        this.y += (this.projectileVelocity ) * this.dy;
+    }
 
-        this.x += this.distance * Math.cos(this.angle)
-        this.y += this.distance * Math.sin(this.angle)
+    
+    getBoundingBox(){    
+        return {
+            x: this.x - this.width / 2,
+            y: this.y - this.height / 2,
+            w: this.width,
+            h: this.height,
+        };
     }
 
     render(){
+        super.render();
+        ctx.save();
 
-        ctx.strokeRect();
+        ctx.fillStyle = "red";
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = "5"
 
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 10,0,Math.PI * 2, false);
+        ctx.fill();
+        ctx.stroke();
+
++
+        ctx.restore();
+
+     
         ctx.resetTransform();
     }
 }
+
+export default Projectile
