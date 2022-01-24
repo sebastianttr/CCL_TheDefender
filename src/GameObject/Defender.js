@@ -6,6 +6,9 @@ import { checkCollisionBetween, checkCollisionDirectional } from "../Utils/Colli
 import {gameObjects} from "../index.js"
 
 class Defender extends GenericObject{
+    #HAND_X = 38;       //px
+    #HAND_Y = 21;       //px
+
     constructor(x,y,height,width, spritesheets,groundLevel){
         super(x,y,height,width);
 
@@ -31,6 +34,7 @@ class Defender extends GenericObject{
         this.headElevation = 0;
 
         this.armAngle = 0;
+        this.handAngle = 0;
 
         this.boundingState="none";
 
@@ -124,25 +128,35 @@ class Defender extends GenericObject{
 
         this.headAngle = Math.atan(oppositeLen/adjacentLen)
 
+        //calculate the angle for the hand to aim at the mouse point
+
         let armPos = this.getPlayerArmPosition();
-        oppositeLen = this.mousePositions.y - armPos.y
+        oppositeLen = this.mousePositions.y - armPos.yddd
         adjacentLen = this.mousePositions.x - armPos.x
 
         if(this.mousePositions.x >= armPos.x)
             this.armAngle = Math.atan(oppositeLen/adjacentLen)
         else this.armAngle = -1 * Math.atan(oppositeLen/adjacentLen)
 
+        // calculate angle and pos of hand relative to arm pivot point
+        const l = Math.round(Math.sqrt(Math.abs(this.mousePositions.x - armPos.x)**2 + Math.abs(this.mousePositions.y - armPos.y)**2))
+        const a = Math.round(Math.sqrt(this.#HAND_Y**2 + this.#HAND_X**2));
+        const c = Math.sqrt(this.#HAND_Y**2  + l**2);
+
+        const alpha_rad = Math.asin(this.#HAND_Y / c);
+        //const gamma_rad = Math.asin((c*Math.sin(alpha_rad))/a)
+        const b = l - this.#HAND_X;
+        const beta_rad = Math.asin(b*Math.sin(alpha_rad)/a)
+        const gamma1_rad = Math.PI - alpha_rad - beta_rad;
+
+        //console.log(gamma1_rad * 180 / Math.PI)
+
+        //console.log(alpha_rad*180 /Math.PI)
+        
+        //this.handAngle = this.armAngle + gamma1_rad
+    
 
         this.spriteDirection = (this.mousePositions.x >= headPos.x)?1:-1;
-
-        // calulate head elevation based on angle, so the head does not look weirddw
-        /*
-        let percentage = 
-            (this.headAngle < 0)
-            ?map(this.headAngle * this.spriteDirection,0,-Math.PI/2,0,100)
-            :map(this.headAngle * this.spriteDirection,0,Math.PI/2,100,0); 
-        */
-
         
         this.headElevation = 10 * map(this.headAngle * this.spriteDirection,0,-Math.PI/2 * this.spriteDirection,0,this.spriteDirection);   // 10 seem like a good value to elevate between
         
@@ -228,7 +242,7 @@ class Defender extends GenericObject{
 
 
          // render arm
-         ctx.translate(
+        ctx.translate(
             this.getPlayerArmPosition().x,
             this.getPlayerArmPosition().y
         )

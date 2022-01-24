@@ -90,6 +90,8 @@ class Cue {
         this.#update(timePassedSinceLastRender);
         this.#render();
 
+        
+
         //set lastTickTimestamp to "now"
         this.lastTickTimestamp = performance.now();
         //call next iteration of the game loop
