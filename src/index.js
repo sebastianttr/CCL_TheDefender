@@ -8,12 +8,15 @@ import Billboard from "./GameObject/Billboard.js";
 import Crate from "./GameObject/Crate.js";
 import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
 
+
+let defender = null;
+let gameWorks = null;
 let gameObjects = [];
 let projectiles = [];
 let collisionObjects = [];
 
 const initGame = () => {
-    let gameWorks = new Cue({
+    gameWorks = new Cue({
         preloads:{
             groundImg1:{
                 src:"./Assets/sprites/landscape/Landscape_sprite_1.png",
@@ -48,8 +51,44 @@ const initGame = () => {
                 type: Image
             },
             defenderArm: {
-                src:"./Assets/TheDefender_arm.png",
+                src:"./Assets/TheDefender_arm2.png",
                 type: Image
+            },
+            skyEnemy1:{
+                src:"./Assets/SkyEnemy_1.png",
+                type: Image
+            },
+            skyEnemy2:{
+                src:"./Assets/SkyEnemy_2.png",
+                type: Image
+            },
+            skyEnemy3:{
+                src:"./Assets/SkyEnemy_3.png",
+                type: Image
+            },
+            groundEnemySpriteIdle: {
+                src:"./Assets/sprites/enemy/spritesheet_enemy_idle.png",
+                type: Image,
+                extras: {
+                    frames: 1,
+                    fps: 1,
+                    frameSize: {
+                        width: 61,
+                        height: 147,
+                    },
+                }
+            },
+            groundEnemySpriteRun:{
+                src:"./Assets/sprites/enemy/spritesheet_enemy_run.png",
+                type: Image,
+                extras: {
+                    frames: 9,  
+                    fps: 12,
+                    frameSize: {
+                        width: 61,
+                        height: 147,
+                    },
+                }
             },
             playerSpriteIdle: {
                 src:"./Assets/sprites/player/idle/spritesheet_idle.png",
@@ -92,7 +131,6 @@ const initGame = () => {
             canvasHeight: CONFIG.canvas.height,
             canvasWidth: CONFIG.canvas.width,
             background: null,
-            defender: null,
             canvasXPosition : 0,
             canvasYPosition : 0,
             isPlayerBounding:false,
@@ -104,7 +142,7 @@ const initGame = () => {
 
             this.background = new BackgroundHandler(this.assets.groundImg1,0,0,"canvas");   
 
-            this.defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
+            defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
             //this.gameObjects.push(this.defender);
 
             //gameObjects.push(new Vehicle(600, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
@@ -122,45 +160,45 @@ const initGame = () => {
         },
         update(timePassedSinceLastRender){
 
-            this.defender.update(timePassedSinceLastRender);
+            defender.update(timePassedSinceLastRender);
 
             gameObjects.forEach((gameObject) => {
                 if(
-                    (checkCollisionDirectional(this.defender, gameObject)[0] == "left" 
-                     || checkCollisionDirectional(this.defender, gameObject)[0] == "right") 
+                    (checkCollisionDirectional(defender, gameObject)[0] == "left" 
+                     || checkCollisionDirectional(defender, gameObject)[0] == "right") 
                      && gameObject instanceof Crate){
                      
-                     if(checkCollisionDirectional(this.defender, gameObject)[0] == "left") {
-                         gameObject.x = this.defender.x + this.defender.width + 1;
+                     if(checkCollisionDirectional(defender, gameObject)[0] == "left") {
+                         gameObject.x = defender.x + defender.width + 1;
                      }
-                     else if(checkCollisionDirectional(this.defender, gameObject)[0] == "right") {
-                         gameObject.x = this.defender.x - gameObject.width - 1;
+                     else if(checkCollisionDirectional(defender, gameObject)[0] == "right") {
+                         gameObject.x = defender.x - gameObject.width - 1;
                      }
                  }
                  else{
-                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
-                         this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
+                     if(checkCollisionDirectional(defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
+                         defender.x = checkCollisionDirectional(defender, gameObject)[1]
                      } 
                      
                      
-                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
+                     if(checkCollisionDirectional(defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
                      {
-                         this.defender.x = checkCollisionDirectional(this.defender, gameObject)[1]
+                        defender.x = checkCollisionDirectional(defender, gameObject)[1]
                      }
                      
-                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "top" ) 
+                     if(checkCollisionDirectional(defender, gameObject)[0] === "top" ) 
                      {
-                         this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
-                         this.defender.velocityY = 0
+                        defender.y = checkCollisionDirectional(defender, gameObject)[1]
+                        defender.velocityY = 0
                          
-                         this.defender.canJump = true
+                        defender.canJump = true
                      }
                      
-                     if(checkCollisionDirectional(this.defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
+                     if(checkCollisionDirectional(defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
                      {
-                         this.defender.y = checkCollisionDirectional(this.defender, gameObject)[1]
-                         this.defender.velocityY = 0
-                         this.defender.canJump = false
+                        defender.y = checkCollisionDirectional(defender, gameObject)[1]
+                        defender.velocityY = 0
+                        defender.canJump = false
                          
                      }
                  }
@@ -260,14 +298,14 @@ const initGame = () => {
             })
 
 
-            this.defender.render();
+            defender.render();
             // render UI here
 
         },
         methods:{
            shiftObjectRelativeToPlayer(gameObject,reverse){
 
-                if(this.defender.boundingState == "right"){
+                if(defender.boundingState == "right"){
                     if(this.background.x <= 
                         (this.background.backgroundImg.width - 4)-CONFIG.canvas.width){
                             if(reverse){
@@ -278,7 +316,7 @@ const initGame = () => {
                             }
                         } 
                 }
-                else if(this.defender.boundingState == "left"){
+                else if(defender.boundingState == "left"){
                     if(this.background.x >= 4){
                         if(reverse){
                             gameObject.x -= 4;
@@ -294,50 +332,50 @@ const initGame = () => {
            
            handleCollisionHorizontal(index){
                  //left and right
-                if(this.defender.dx == -1 
-                    && (this.defender.y == 0 || this.defender.dy != 0)
+                if(defender.dx == -1 
+                    && (defender.y == 0 || this.defender.dy != 0)
                     //&& !this.defender.collision.bottom
                     //&& !this.defender.collision.top
-                    && !this.defender.collision.left) // going left
+                    && !defender.collision.left) // going left
                 {
-                    this.defender.collision.left = true;
-                    this.defender.collision.right = false;
+                    defender.collision.left = true;
+                    defender.collision.right = false;
                     //this.defender.collision.bottom = false;
                     //this.defender.collision.top = false;
                     console.log("Object " + index + ": left")
                 }
-                else if(this.defender.dx == 1 
-                    && (this.defender.y == 0 || this.defender.dy != 0)
+                else if(defender.dx == 1 
+                    && (defender.y == 0 || this.defender.dy != 0)
                     //&& !this.defender.collision.bottom
                     //&& !this.defender.collision.top
-                    && !this.defender.collision.right) // going right
+                    && !defender.collision.right) // going right
                 {
-                    this.defender.collision.left = false;
-                    this.defender.collision.right = true;
+                    defender.collision.left = false;
+                    defender.collision.right = true;
                     //this.defender.collision.bottom = false;
                     //this.defender.collision.top = false;
                     console.log("Object " + index + ": right")
                 }   
            },
            handleCollisionVertical(index){
-                if(this.defender.dy == -1 
+                if(defender.dy == -1 
                     //&& !this.defender.collision.left
                     //&& !this.defender.collision.right
-                    && !this.defender.collision.bottom) // going down
+                    && !defender.collision.bottom) // going down
                 {
-                    this.defender.collision.bottom = true;
-                    this.defender.collision.top = false;
+                    defender.collision.bottom = true;
+                    defender.collision.top = false;
                     //this.defender.collision.left = false;
                     //this.defender.collision.right = false;
                     console.log("Object " + index + ": bottom")
                 }
-                else if(this.defender.dy == 1 
+                else if(defender.dy == 1 
                     //&& !this.defender.collision.left
                     //&& !this.defender.collision.right    
-                    && !this.defender.collision.top) // going up
+                    && !defender.collision.top) // going up
                 {
-                    this.defender.collision.bottom = false;
-                    this.defender.collision.top = true;
+                    defender.collision.bottom = false;
+                    defender.collision.top = true;
                     //this.defender.collision.left = false;
                     //this.defender.collision.right = false;
                     console.log("Object " + index + ": top")
@@ -352,10 +390,8 @@ const initGame = () => {
 
 
 
-
-
 window.addEventListener("load", () => {
     initGame();
 })
 
-export {gameObjects,projectiles}
+export {defender,gameObjects,projectiles}

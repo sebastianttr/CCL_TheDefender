@@ -16,7 +16,7 @@ class Projectile extends GenericObject{
 
         this.distance = 0; // hypot
 
-        this.projectileVelocity = 10;
+        this.projectileVelocity = 20;
 
         
 

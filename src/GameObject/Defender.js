@@ -19,7 +19,6 @@ class Defender extends GenericObject{
 
         this.dy = 0;
         this.dx = 0;
-        this.frictionCoefficient = 0;
         this.velocityX = 0.4;
         this.velocityY = 0;
         this.translateState = "idle";
