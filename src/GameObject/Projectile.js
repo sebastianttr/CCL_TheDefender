@@ -55,15 +55,15 @@ class Projectile extends GenericObject{
     }
 
     render(){
-        super.render();
+        //super.render();
         ctx.save();
 
         ctx.fillStyle = "red";
         ctx.strokeStyle = "blue";
-        ctx.lineWidth = "5"
+        ctx.lineWidth = "2"
 
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 10,0,Math.PI * 2, false);
+        ctx.arc(this.x, this.y, 5,0,Math.PI * 2, false);
         ctx.fill();
         ctx.stroke();
 

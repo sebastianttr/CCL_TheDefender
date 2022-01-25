@@ -10,6 +10,8 @@ class Defender extends GenericObject{
     #HAND_X = 38;       //px
     #HAND_Y = 21;       //px
 
+    projectileDamage = 30;
+
     constructor(x,y,height,width, spritesheets,groundLevel){
         super(x,y,height,width);
 
@@ -34,15 +36,12 @@ class Defender extends GenericObject{
         this.headElevation = 0;
 
         this.armAngle = 0;
-        this.handAngle = 0;
 
         this.boundingState="none";
 
-        this.whichObjectToCollide = 0
+        this.canJump = true
 
         this.init();
-
-        this.canJump = true
     }
 
     init(){
@@ -62,8 +61,8 @@ class Defender extends GenericObject{
                     new Projectile(
                         this.getPlayerArmPosition().x,
                         this.getPlayerArmPosition().y,
-                        20,
-                        20,
+                        10,
+                        10,
                         {
                             x: this.getPlayerArmPosition().x,
                             y: this.getPlayerArmPosition().y
@@ -160,23 +159,6 @@ class Defender extends GenericObject{
         this.armAngle = Math.atan(oppositeLen/adjacentLen)
 
         //console.log(this.armAngle)
-
-        // calculate angle and pos of hand relative to arm pivot point
-        const l = Math.round(Math.sqrt(Math.abs(this.mousePositions.x - armPos.x)**2 + Math.abs(this.mousePositions.y - armPos.y)**2))
-        const a = Math.round(Math.sqrt(this.#HAND_Y**2 + this.#HAND_X**2));
-        const c = Math.sqrt(this.#HAND_Y**2  + l**2);
-
-        const alpha_rad = Math.asin(this.#HAND_Y / c);
-        //const gamma_rad = Math.asin((c*Math.sin(alpha_rad))/a)
-        const b = l - this.#HAND_X;
-        const beta_rad = Math.asin(b*Math.sin(alpha_rad)/a)
-        const gamma1_rad = Math.PI - alpha_rad - beta_rad;
-
-        //console.log(gamma1_rad * 180 / Math.PI)
-
-        //console.log(alpha_rad*180 /Math.PI)
-        
-        //this.handAngle = this.armAngle + gamma1_rad
     
 
         this.spriteDirection = (this.mousePositions.x >= headPos.x)?1:-1;

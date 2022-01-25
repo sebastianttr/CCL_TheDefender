@@ -6,6 +6,9 @@ import BackgroundHandler from "./Services/BackgroundHandler.js";
 import Vehicle from "./GameObject/Vehicle.js";
 import Billboard from "./GameObject/Billboard.js";
 import Crate from "./GameObject/Crate.js";
+import GroundEnemy from "./GameObject/GroundEnemy.js";
+import SkyEnemy from "./GameObject/SkyEnemy.js";
+
 import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
 
 
@@ -90,6 +93,14 @@ const initGame = () => {
                     },
                 }
             },
+            groundEnemyArm:{
+                src: "./Assets/GroundEnemy_arm.png",
+                type: Image
+            },
+            groundEnemyHead:{
+                src: "./Assets/GroundEnemy_head.png",
+                type: Image
+            },
             playerSpriteIdle: {
                 src:"./Assets/sprites/player/idle/spritesheet_idle.png",
                 type: Image,
@@ -157,6 +168,9 @@ const initGame = () => {
             gameObjects.push(new Billboard(2000, 0, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
             gameObjects.push(new Crate(1200,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
 
+            gameObjects.push(new GroundEnemy(400,0,61,147,{...this.assets},15));
+            gameObjects.push(new SkyEnemy(800,0,230,129,this.assets.skyEnemy1,30))
+
         },
         update(timePassedSinceLastRender){
 
@@ -176,30 +190,31 @@ const initGame = () => {
                      }
                  }
                  else{
-                     if(checkCollisionDirectional(defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
-                         defender.x = checkCollisionDirectional(defender, gameObject)[1]
-                     } 
-                     
-                     
-                     if(checkCollisionDirectional(defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
-                     {
-                        defender.x = checkCollisionDirectional(defender, gameObject)[1]
-                     }
-                     
-                     if(checkCollisionDirectional(defender, gameObject)[0] === "top" ) 
-                     {
-                        defender.y = checkCollisionDirectional(defender, gameObject)[1]
-                        defender.velocityY = 0
-                         
-                        defender.canJump = true
-                     }
-                     
-                     if(checkCollisionDirectional(defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
-                     {
-                        defender.y = checkCollisionDirectional(defender, gameObject)[1]
-                        defender.velocityY = 0
-                        defender.canJump = false
-                         
+                     if(!(gameObject instanceof GroundEnemy)){
+                        if(checkCollisionDirectional(defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
+                            defender.x = checkCollisionDirectional(defender, gameObject)[1]
+                        } 
+                        
+                        
+                        if(checkCollisionDirectional(defender, gameObject)[0] === "right" && !(gameObject instanceof Billboard)) 
+                        {
+                           defender.x = checkCollisionDirectional(defender, gameObject)[1]
+                        }
+                        
+                        if(checkCollisionDirectional(defender, gameObject)[0] === "top") 
+                        {
+                           defender.y = checkCollisionDirectional(defender, gameObject)[1]
+                           defender.velocityY = 0
+                           defender.canJump = true
+                        }
+                        
+                        if(checkCollisionDirectional(defender, gameObject)[0] === "bottom" && !(gameObject instanceof Billboard)) 
+                        {
+                           defender.y = checkCollisionDirectional(defender, gameObject)[1]
+                           defender.velocityY = 0
+                           defender.canJump = false
+                            
+                        }
                      }
                  }
                 gameObject.update(timePassedSinceLastRender);
@@ -207,21 +222,49 @@ const initGame = () => {
 
 
             let projectilesToRemove = [];
+            let enemiesToRemove = [];
             
-            projectiles.forEach((projectile)=> {
-                if(projectile.x > CONFIG.canvas.width || projectile.x < 0 || projectile.y > CONFIG.canvas.height || projectile.y < 0 ){
+            projectiles.forEach(async (projectile)=> {
+                if(projectile.x > this.assets.groundImg1.naturalWidth || projectile.x < 0 || projectile.y > CONFIG.canvas.height || projectile.y < 0 ){
                     projectilesToRemove.push(projectile)
                 }
                 else {
-                    projectile.update();
+                    let markedForDelete = false
+                    gameObjects.forEach(async (gameObject) => {
+                        if(checkCollisionBetween(projectile, gameObject) &&
+                            (gameObject instanceof GroundEnemy || gameObject instanceof SkyEnemy)){
+
+
+                            //console.log("Enemy hit.")
+                            markedForDelete = true;
+                            
+                            //console.log(gameObject)
+                            gameObject.health -= defender.projectileDamage;
+                            
+
+                            projectilesToRemove.push(gameObject)
+                            
+                            if(gameObject.health <= 0)
+                                enemiesToRemove.push(gameObject)
+
+                        }   
+                    })
+
+                    if(!markedForDelete)
+                        projectile.update();
                 }
             })
 
             projectilesToRemove.forEach((projectile)=> {
                 projectiles.splice(projectiles.indexOf(projectile),1)
-                console.log("removed a projectile")
+                //console.log("removed a projectile")
             })
 
+
+            enemiesToRemove.forEach((enemy) => {
+                gameObjects.splice(gameObjects.indexOf(enemy),1);
+                //console.log("Remove a enemy");
+            })
             /*
 
             // old collision detection
