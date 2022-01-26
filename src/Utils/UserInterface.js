@@ -13,17 +13,19 @@ class UserInterface {
     groundEnemyCounter = {
         x: CONFIG.canvas.width - 230,
         y: 10,
-        height: 40,
+        height: 50,
         width: 100
     }
 
-    digitSizing = 35 //px
+    digitSizing = 42 //px
 
-    constructor(){}
-
-    update(){
-
+    constructor(image1,image2,image3){
+        this.image1 = image1;
+        this.image2 = image2;
+        this.image3 = image3;
     }
+
+    update(){}
 
     getNumNDigits(num){
         return num.toString().length;
@@ -31,23 +33,35 @@ class UserInterface {
 
     render(){
         ctx.save();
-        //console.log("Rendering!")
-        let skyNumSizing = this.getNumNDigits(skyEnemiesShotCounter);
 
+
+        // render sky enemies counter
+        //console.log("Rendering!")
+        let skyNumSizing = this.getNumNDigits(skyEnemiesShotCounter)-1;
+        
         ctx.fillStyle = "black"
         ctx.fillRect(
-            this.skyEnemyCounter.x,
+            this.skyEnemyCounter.x - skyNumSizing * this.digitSizing,
             this.skyEnemyCounter.y,
-            this.skyEnemyCounter.width * skyNumSizing,
-            this.skyEnemyCounter.height,
+            this.skyEnemyCounter.width,
+            this.skyEnemyCounter.height
         )
+
         ctx.fillStyle = "white"
 
         ctx.fillRect(
             this.skyEnemyCounter.x + this.skyEnemyCounter.width/2,
             this.skyEnemyCounter.y,
-            this.skyEnemyCounter.width/2 * skyNumSizing,
+            this.skyEnemyCounter.width/2 + this.digitSizing * skyNumSizing,
             this.skyEnemyCounter.height,
+        )
+
+        ctx.drawImage(
+            this.image2,
+            this.skyEnemyCounter.x + 5,
+            this.skyEnemyCounter.y + 13,
+            40,
+            25
         )
 
 
@@ -60,12 +74,15 @@ class UserInterface {
             this.skyEnemyCounter.y + this.skyEnemyCounter.width/2 - 5,
         )
 
-        let groundNumSizing = this.getNumNDigits(groundEnemiesShotCounter);
+
+        // render ground enemies counter
+
+        let groundNumSizing = this.getNumNDigits(groundEnemiesShotCounter)-1;
         //console.log(groundNumSizing)
 
         ctx.fillStyle = "black"
         ctx.fillRect(
-            this.groundEnemyCounter.x,
+            this.groundEnemyCounter.x - groundNumSizing * this.digitSizing - skyNumSizing * this.digitSizing,
             this.groundEnemyCounter.y,
             this.groundEnemyCounter.width,
             this.groundEnemyCounter.height,
@@ -73,12 +90,20 @@ class UserInterface {
         ctx.fillStyle = "white"
 
         ctx.fillRect(
-            this.groundEnemyCounter.x + this.groundEnemyCounter.width/2,
+            this.groundEnemyCounter.x + this.groundEnemyCounter.width/2 - groundNumSizing * this.digitSizing - skyNumSizing * this.digitSizing,
             this.groundEnemyCounter.y,
-            this.groundEnemyCounter.width/2,
+            this.groundEnemyCounter.width/2 + groundNumSizing * this.digitSizing,
             this.groundEnemyCounter.height,
         )
 
+        
+        ctx.drawImage(
+            this.image1,
+            this.groundEnemyCounter.x - 5,
+            this.groundEnemyCounter.y + 5,
+            40,
+            40
+        )
 
 
         ctx.font = '50px Gamefont';
@@ -86,9 +111,33 @@ class UserInterface {
         ctx.fillStyle = "black"
         ctx.fillText(
             groundEnemiesShotCounter,
-            this.groundEnemyCounter.x + 3 * this.groundEnemyCounter.width/4,
+            this.groundEnemyCounter.x + 3 * this.groundEnemyCounter.width/4 - (groundNumSizing * this.digitSizing)/2,
             this.groundEnemyCounter.y + this.groundEnemyCounter.width/2 - 5,
         )
+
+
+        ctx.fillStyle = "black"
+
+        // render health bar
+
+        ctx.fillRect(
+            60,
+            30,
+            120,
+            5
+        )
+
+        ctx.fillStyle = "red"
+
+     
+
+        ctx.fillRect(
+            60,
+            10,
+            120 * (defender.health / 1000),
+            20
+        )
+
 
         ctx.restore();
         ctx.resetTransform();

@@ -41,6 +41,7 @@ class Defender extends GenericObject{
         this.boundingState="none";
 
         this.canJump = true
+        this.isPushing = false;
 
         this.init();
     }
@@ -113,6 +114,8 @@ class Defender extends GenericObject{
 
         // set direction
         //if(this.dx !== 0) this.spriteDirection = this.dx;
+        this.velocityX = (this.isPushing)?0.01:0.4;
+        //console.log(this.velocityX)
 
         // calc X pos
         this.x += 
@@ -122,6 +125,7 @@ class Defender extends GenericObject{
         if((this.keyboardHandler.keys["Space"] || this.keyboardHandler.keys["KeyW"]) && this.velocityY == 0 && this.canJump){
             this.velocityY = 50;
         }
+
 
         //calculate velocity
         this.velocityY -= timePassedSinceLastRender * this.gravity  / 50
@@ -168,6 +172,9 @@ class Defender extends GenericObject{
         
         this.headElevation = 10 * map(this.headAngle * this.spriteDirection,0,-Math.PI/2 * this.spriteDirection,0,this.spriteDirection);   // 10 seem like a good value to elevate between
         
+        if(this.health <= 0){
+            this.health = 0;
+        }
     }
 
     getBoundaries(){

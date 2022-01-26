@@ -8,7 +8,6 @@ import Billboard from "./GameObject/Billboard.js";
 import Crate from "./GameObject/Crate.js";
 import GroundEnemy from "./GameObject/GroundEnemy.js";
 import SkyEnemy from "./GameObject/SkyEnemy.js";
-
 import UserInterface from "./Utils/UserInterface.js";
 
 import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
@@ -24,6 +23,14 @@ let groundEnemiesShotCounter = 0;
 const initGame = () => {
     gameWorks = new Cue({
         preloads:{
+            uiImage1:{
+                src: "./Assets/ui_elements/ground_enemy_counter_icon.png",
+                type: Image
+            },
+            uiImage2:{
+                src: "./Assets/ui_elements/sky_enemy_counter_icon.png",
+                type: Image
+            },
             groundImg1:{
                 src:"./Assets/sprites/landscape/Landscape_sprite_1.png",
                 type: Image
@@ -161,7 +168,7 @@ const initGame = () => {
             defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
             //this.gameObjects.push(this.defender);
 
-            this.userInterface = new UserInterface();
+            this.userInterface = new UserInterface(this.assets.uiImage1,this.assets.uiImage2,this.assets.head);
 
             //gameObjects.push(new Vehicle(600, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
             gameObjects.push(new Vehicle(600, 100, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
@@ -183,6 +190,7 @@ const initGame = () => {
 
         },
         update(timePassedSinceLastRender){
+            defender.isPushing = false;
 
             defender.update(timePassedSinceLastRender);
 
@@ -191,15 +199,23 @@ const initGame = () => {
                     (checkCollisionDirectional(defender, gameObject)[0] == "left" 
                      || checkCollisionDirectional(defender, gameObject)[0] == "right") 
                      && gameObject instanceof Crate){
+
                      
                      if(checkCollisionDirectional(defender, gameObject)[0] == "left") {
                          gameObject.x = defender.x + defender.width + 1;
+                         defender.isPushing = true;
+
                      }
                      else if(checkCollisionDirectional(defender, gameObject)[0] == "right") {
                          gameObject.x = defender.x - gameObject.width - 1;
+                         defender.isPushing = true;
+
                      }
+
+
                  }
                  else{
+
                      if(!(gameObject instanceof GroundEnemy)){
                         if(checkCollisionDirectional(defender, gameObject)[0] === "left" && !(gameObject instanceof Billboard)){
                             defender.x = checkCollisionDirectional(defender, gameObject)[1]
@@ -227,6 +243,7 @@ const initGame = () => {
                         }
                      }
                  }
+
                 gameObject.update(timePassedSinceLastRender);
             });
 
@@ -349,7 +366,7 @@ const initGame = () => {
            },
            spawnGroundEnemiesAtBeginning(){
                 for(let i = 0; i < 16;i++){
-                    let newX = map(Math.random(),0,1,CONFIG.canvas.width, this.assets.groundImg1.naturalWidth);
+                    let newX = map(Math.random(),0,1,CONFIG.canvas.width, CONFIG.canvas.width*2);
                     let distanceToDefender = map(Math.random(),0,1,400, 800);
                     let enemyVelocity = map(Math.random(),0,1,0.1, 0.3)
                     this.spawnGroundEnemy(newX,distanceToDefender,enemyVelocity)
@@ -383,4 +400,4 @@ window.addEventListener("load", () => {
     initGame();
 })
 
-export {defender,gameObjects,projectiles,skyEnemiesShotCounter, groundEnemiesShotCounter}
+export {defender,gameObjects,projectiles,skyEnemiesShotCounter, groundEnemiesShotCounter,initGame}
