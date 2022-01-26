@@ -1,11 +1,6 @@
 @font-face {
-  font-family: "Product Sans";
-  src: url(./Assets/fonts/product_sans/Product_Sans_Regular.ttf);
-}
-
-@font-face {
   font-family: "Gamefont";
-  src: url(./Assets/fonts/gamefont/gamefont_regular.ttf);
+  src: url(./Assets/fonts/font_chunky.ttf);
 }
 
 body {

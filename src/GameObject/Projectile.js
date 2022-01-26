@@ -18,6 +18,8 @@ class Projectile extends GenericObject{
 
         this.projectileVelocity = 20;
 
+        this.shotFrom = null;
+
         
 
         this.init();
@@ -25,7 +27,6 @@ class Projectile extends GenericObject{
     }
 
     init(){
-
         let newX = this.endX - this.startX;
         let newY = this.endY - this.startY;
 
@@ -36,12 +37,11 @@ class Projectile extends GenericObject{
 
         this.dx = newX// * this.projectileVelocity;
         this.dy = newY
-
     }
 
     update(){
-        this.x += (this.projectileVelocity ) * this.dx
-        this.y += (this.projectileVelocity ) * this.dy;
+        this.x += (this.projectileVelocity) * this.dx;
+        this.y += (this.projectileVelocity) * this.dy;
     }
 
     
@@ -58,8 +58,8 @@ class Projectile extends GenericObject{
         //super.render();
         ctx.save();
 
-        ctx.fillStyle = "red";
-        ctx.strokeStyle = "blue";
+        ctx.fillStyle = "yellow";
+        ctx.strokeStyle = "orange";
         ctx.lineWidth = "2"
 
         ctx.beginPath();

@@ -1,5 +1,5 @@
 import Cue from "./Utils/Cue.js";
-import {CONFIG , canvas, ctx} from "./commons.js";
+import {CONFIG , canvas, ctx,map} from "./commons.js";
 
 import Defender from "./GameObject/Defender.js";
 import BackgroundHandler from "./Services/BackgroundHandler.js";
@@ -9,6 +9,8 @@ import Crate from "./GameObject/Crate.js";
 import GroundEnemy from "./GameObject/GroundEnemy.js";
 import SkyEnemy from "./GameObject/SkyEnemy.js";
 
+import UserInterface from "./Utils/UserInterface.js";
+
 import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
 
 
@@ -16,7 +18,8 @@ let defender = null;
 let gameWorks = null;
 let gameObjects = [];
 let projectiles = [];
-let collisionObjects = [];
+let skyEnemiesShotCounter = 0;
+let groundEnemiesShotCounter = 0;
 
 const initGame = () => {
     gameWorks = new Cue({
@@ -142,10 +145,12 @@ const initGame = () => {
             canvasHeight: CONFIG.canvas.height,
             canvasWidth: CONFIG.canvas.width,
             background: null,
+            userInterface:null,
             canvasXPosition : 0,
             canvasYPosition : 0,
             isPlayerBounding:false,
             groundLevel:600,
+            nEnemiesKilled: 0
         },
         init(){
             canvas.setAttribute("width", this.canvasWidth);
@@ -155,6 +160,8 @@ const initGame = () => {
 
             defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
             //this.gameObjects.push(this.defender);
+
+            this.userInterface = new UserInterface();
 
             //gameObjects.push(new Vehicle(600, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
             gameObjects.push(new Vehicle(600, 100, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
@@ -168,8 +175,11 @@ const initGame = () => {
             gameObjects.push(new Billboard(2000, 0, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
             gameObjects.push(new Crate(1200,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
 
-            gameObjects.push(new GroundEnemy(400,0,61,147,{...this.assets},15));
-            gameObjects.push(new SkyEnemy(800,0,230,129,this.assets.skyEnemy1,30))
+            //gameObjects.push(new GroundEnemy(400,0,61,147,{...this.assets},15));
+
+            this.spawnGroundEnemiesAtBeginning();
+
+            gameObjects.push(new SkyEnemy(200,0,230,129,this.assets.skyEnemy1,30))
 
         },
         update(timePassedSinceLastRender){
@@ -228,26 +238,43 @@ const initGame = () => {
                 if(projectile.x > this.assets.groundImg1.naturalWidth || projectile.x < 0 || projectile.y > CONFIG.canvas.height || projectile.y < 0 ){
                     projectilesToRemove.push(projectile)
                 }
+                else if(checkCollisionBetween(projectile,defender) && !(projectile.shotFrom instanceof Defender)){
+                    projectilesToRemove.push(projectile)
+                    defender.health -= projectile.shotFrom.projectileDamage 
+                }
                 else {
                     let markedForDelete = false
                     gameObjects.forEach(async (gameObject) => {
-                        if(checkCollisionBetween(projectile, gameObject) &&
-                            (gameObject instanceof GroundEnemy || gameObject instanceof SkyEnemy)){
+                            if(checkCollisionBetween(projectile, gameObject) &&
+                                (gameObject instanceof GroundEnemy || gameObject instanceof SkyEnemy) &&
+                                !(projectile.shotFrom instanceof GroundEnemy)
+                            ){
+                                //console.log("Enemy hit.")
+                                markedForDelete = true;
+                                
+                                //console.log(gameObject)
+                                gameObject.health -= defender.projectileDamage;
+                                
 
+                                projectilesToRemove.push(gameObject)
+                                
+                                
+                                if(gameObject.health <= 0){
+                                    enemiesToRemove.push(gameObject)
+                                    //skyEnemiesShotCounter++;
 
-                            //console.log("Enemy hit.")
-                            markedForDelete = true;
-                            
-                            //console.log(gameObject)
-                            gameObject.health -= defender.projectileDamage;
-                            
-
-                            projectilesToRemove.push(gameObject)
-                            
-                            if(gameObject.health <= 0)
-                                enemiesToRemove.push(gameObject)
-
-                        }   
+                                    if(gameObject instanceof GroundEnemy)     groundEnemiesShotCounter++;      
+                                    else if(gameObject instanceof SkyEnemy)   skyEnemiesShotCounter++;  
+                                }
+                            }     
+                            else if (
+                                gameObject instanceof SkyEnemy && checkCollisionBetween(defender,gameObject.laser) && gameObject.deployLaser
+                            ){
+                                //console.log("Inside laser")
+                                defender.health -= gameObject.projectileDamage
+                                //groundEnemiesShotCounter++;
+                            }
+                        
                     })
 
                     if(!markedForDelete)
@@ -265,56 +292,8 @@ const initGame = () => {
                 gameObjects.splice(gameObjects.indexOf(enemy),1);
                 //console.log("Remove a enemy");
             })
-            /*
-
-            // old collision detection
-            this.defender.update(timePassedSinceLastRender);
-
-            //console.log(this.defender.collision)
-
-            gameObjects.forEach((gameObject,index) => {
-
-                if(checkCollisionBetween(this.defender,gameObject)){
-                    
-                    this.defender.collidingObject = gameObject;
-
-                    if(gameObject instanceof Crate){
-                        // Top and bottom 
-                        this.handleCollisionVertical(index);
-
-                        if(this.defender.dx == 1 
-                            && this.defender.y == 0
-
-                            ) {
-                            gameObject.x = this.defender.x + this.defender.width;
-                        }
-                        else if(this.defender.dx == -1 
-                            && this.defender.y == 0
-                            ){
-                       
-                            gameObject.x = this.defender.x - gameObject.width;
-                        }
-                    }else {   
-                        //left and right
-                       this.handleCollisionHorizontal(index);
-
-                        // Top and bottom 
-                        this.handleCollisionVertical(index);
-                      
-                    }
-                }
-                else if(this.defender.collidingObject == gameObject){
-                    this.defender.collidingObject = null;
-                    this.defender.collision.left  = false;
-                    this.defender.collision.right = false;
-                    this.defender.collision.bottom  = false;
-                    this.defender.collision.top = false;
-                }
-               
-                gameObject.update(timePassedSinceLastRender);
-            });      
-
-            */
+           
+            this.userInterface.update();
         },
         render(){
             ctx.resetTransform();
@@ -322,14 +301,11 @@ const initGame = () => {
 
             // render ui elements
 
-
             // set scene position
-            
+
          
             this.background = this.shiftObjectRelativeToPlayer(this.background , true);
             this.background.render();
-
-        
 
             gameObjects.forEach((gameObject) => {  
                 gameObject = this.shiftObjectRelativeToPlayer(gameObject,false)
@@ -340,14 +316,14 @@ const initGame = () => {
                 projectile.render();
             })
 
-
             defender.render();
-            // render UI here
 
+            ctx.resetTransform();
+
+            this.userInterface.render();
         },
         methods:{
            shiftObjectRelativeToPlayer(gameObject,reverse){
-
                 if(defender.boundingState == "right"){
                     if(this.background.x <= 
                         (this.background.backgroundImg.width - 4)-CONFIG.canvas.width){
@@ -371,58 +347,28 @@ const initGame = () => {
                 }
                 return gameObject;
            },
-
-           
-           handleCollisionHorizontal(index){
-                 //left and right
-                if(defender.dx == -1 
-                    && (defender.y == 0 || this.defender.dy != 0)
-                    //&& !this.defender.collision.bottom
-                    //&& !this.defender.collision.top
-                    && !defender.collision.left) // going left
-                {
-                    defender.collision.left = true;
-                    defender.collision.right = false;
-                    //this.defender.collision.bottom = false;
-                    //this.defender.collision.top = false;
-                    console.log("Object " + index + ": left")
+           spawnGroundEnemiesAtBeginning(){
+                for(let i = 0; i < 16;i++){
+                    let newX = map(Math.random(),0,1,CONFIG.canvas.width, this.assets.groundImg1.naturalWidth);
+                    let distanceToDefender = map(Math.random(),0,1,400, 800);
+                    let enemyVelocity = map(Math.random(),0,1,0.1, 0.3)
+                    this.spawnGroundEnemy(newX,distanceToDefender,enemyVelocity)
                 }
-                else if(defender.dx == 1 
-                    && (defender.y == 0 || this.defender.dy != 0)
-                    //&& !this.defender.collision.bottom
-                    //&& !this.defender.collision.top
-                    && !defender.collision.right) // going right
-                {
-                    defender.collision.left = false;
-                    defender.collision.right = true;
-                    //this.defender.collision.bottom = false;
-                    //this.defender.collision.top = false;
-                    console.log("Object " + index + ": right")
-                }   
            },
-           handleCollisionVertical(index){
-                if(defender.dy == -1 
-                    //&& !this.defender.collision.left
-                    //&& !this.defender.collision.right
-                    && !defender.collision.bottom) // going down
-                {
-                    defender.collision.bottom = true;
-                    defender.collision.top = false;
-                    //this.defender.collision.left = false;
-                    //this.defender.collision.right = false;
-                    console.log("Object " + index + ": bottom")
-                }
-                else if(defender.dy == 1 
-                    //&& !this.defender.collision.left
-                    //&& !this.defender.collision.right    
-                    && !defender.collision.top) // going up
-                {
-                    defender.collision.bottom = false;
-                    defender.collision.top = true;
-                    //this.defender.collision.left = false;
-                    //this.defender.collision.right = false;
-                    console.log("Object " + index + ": top")
-                }   
+           spawnGroundEnemy(x, distance, enemyVelocity){
+                let newGroundEnemy = new GroundEnemy(
+                    x,
+                    0,
+                    61,
+                    148,
+                    {...this.assets},
+                    15
+                )
+
+                newGroundEnemy.DISTANCE_DEFENDER = distance
+                newGroundEnemy.velocityX = enemyVelocity
+
+                gameObjects.push(newGroundEnemy);
            }
            
         }
@@ -437,4 +383,4 @@ window.addEventListener("load", () => {
     initGame();
 })
 
-export {defender,gameObjects,projectiles}
+export {defender,gameObjects,projectiles,skyEnemiesShotCounter, groundEnemiesShotCounter}

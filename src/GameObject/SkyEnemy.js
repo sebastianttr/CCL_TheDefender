@@ -1,11 +1,17 @@
 import GenericObject from "./Generics/GenericObject.js";
 import {CONFIG,canvas,ctx,map} from "../commons.js"
-import { defender } from "../index.js";
+import { defender , projectiles } from "../index.js";
+import Projectile from "./Projectile.js";
+import Laser from "./Laser.js";
 
 class SkyEnemy extends GenericObject{
 
-    DISTANCE_DEFENDER = 150;
+    DISTANCE_DEFENDER = 0;
+    projectileDamage = 30
     health = 650;
+
+    BURST_INTERVAL = 3000 //ms 
+    SHOT_INTERVAL = 400 //ms
 
     constructor(x,y,height,width, image,projectileDamage){
         super(x,y,height,width);
@@ -15,20 +21,35 @@ class SkyEnemy extends GenericObject{
         //this.health = 650;    
         this.velocityX = 0.1;    
         this.spriteDirection = 1;
+        this.weaponAngle = 0;
 
-        this.weaponAngle = 3 * Math.PI / 4;
-        
+        this.startTime = 0;
+        this.laserTimeDelta = 0;
+        this.deployLaser = false;
+
+        this.laser = null;
+     
         this.init();
     }
 
     init(){
-        // nothing to do here ATM
+        this.DISTANCE_DEFENDER -= this.image.naturalWidth / 2;
+        this.startTime = performance.now();
+
+        this.laser = new Laser(
+            this.x + this.width/2 - 15,
+            this.y + this.height/2,
+            30,
+            CONFIG.canvas.height - this.x + this.height - 50
+        )
     }
 
     update(timePassedSinceLastRender){
+        this.updateLaserPos();
+
         // calculate distance to player
         let distanceToPlayer = Math.round(this.x - defender.x);
-        this.spriteDirection = (defender.x >= this.x)?1:-1;
+        this.spriteDirection = (defender.x >= this.x+1)?1:-1;
 
         // decide if it should move; plus minus 2 is for removing the jitter at certain points
         if(distanceToPlayer > this.DISTANCE_DEFENDER + 2){  
@@ -40,10 +61,49 @@ class SkyEnemy extends GenericObject{
         }
 
         this.x += timePassedSinceLastRender * this.velocityX * this.dx
+
+        // shoot laser when defender is not moving.
+        if(this.dx == 0 && !this.deployLaser){    
+            this.laserTimeDelta = performance.now()-this.startTime
+
+            if(this.laserTimeDelta > 3000){
+                this.deployLaser = true;
+                this.startTime = performance.now();
+                //this.setLaserInstance();
+            }
+        }
+        else if(this.deployLaser){
+            this.laserTimeDelta = performance.now()-this.startTime
+
+            if(this.laserTimeDelta > 5000){
+                this.deployLaser = false;
+                this.startTime = performance.now();
+                //this.setLaserInstance();
+            }
+        }
+        else{
+            this.laserTimeDelta = 0;
+            this.startTime = performance.now();
+            //this.laser = null;
+        }
+    }
+
+    updateLaserPos(){
+        if(this.laser != null){
+            this.laser.x = this.x + this.width/2 - 15;
+            this.laser.y = this.y + this.height/2;
+            this.laser.update();
+        }
     }
 
     render(){
         super.render();
+
+        if(this.deployLaser){
+            this.laser.render();
+        }
+
+
         ctx.translate(this.x + this.width / 2, -this.y -this.height / 2 + 50);
         ctx.scale(this.spriteDirection,1);
 
@@ -54,8 +114,6 @@ class SkyEnemy extends GenericObject{
             this.image.naturalWidth,
             this.image.naturalHeight
         );
-
-        ctx.resetTransform();
 
         ctx.resetTransform();
 

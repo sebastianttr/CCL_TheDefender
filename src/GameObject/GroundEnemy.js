@@ -1,12 +1,17 @@
 import GenericObject from "./Generics/GenericObject.js";
 import {CONFIG,canvas,ctx,map} from "../commons.js"
 import Sprite from "../Utils/Sprite.js";
-import { defender } from "../index.js";
+import { defender, projectiles } from "../index.js";
+import Projectile from "./Projectile.js";
 
 class GroundEnemy extends GenericObject{
 
     DISTANCE_DEFENDER = 450;
+    projectileDamage = 200
     health = 100;
+
+    BURST_INTERVAL = 5000 //ms 
+    SHOT_INTERVAL = 400 //ms
 
     constructor(x,y,height,width, images, projectileDamage){
         super(x,y,height,width);
@@ -14,9 +19,12 @@ class GroundEnemy extends GenericObject{
         this.spritesheets = images;
         this.projectileDamage = projectileDamage;
         this.translateState = "idle"
-        //this.health = 100;
+        this.startHealth = this.health;
         this.velocityX = 0.2;
         this.spriteDirection = 1;
+
+        this.startTime = 0;
+        this.nShotsFired = 0;
 
         this.headAngle = 0;
         this.armAngle = 0;
@@ -42,19 +50,21 @@ class GroundEnemy extends GenericObject{
                 this.spritesheets.groundEnemySpriteRun.extras.fps,
                 this.spritesheets.groundEnemySpriteRun.extras.frameSize,
             )
+
+        this.startTime = performance.now();
     }
 
     update(timePassedSinceLastRender){
 
         // calculate distance to player
-        let distanceToPlayer = Math.round(this.x - defender.x);
+        let distanceToPlayer = Math.round(Math.abs(this.x - defender.x));
         this.spriteDirection = (defender.x >= this.x)?1:-1;
 
         // decide if it should move; plus minus 2 is for removing the jitter at certain points
         if(distanceToPlayer > this.DISTANCE_DEFENDER + 2){  
-            this.dx = -1;
+            this.dx = -1 * -this.spriteDirection;
         } else if(distanceToPlayer < this.DISTANCE_DEFENDER-2){
-            this.dx = 1;
+            this.dx = 1 * -this.spriteDirection;
         } else {
             this.dx = 0;
         }
@@ -74,8 +84,45 @@ class GroundEnemy extends GenericObject{
 
         this.armAngle = Math.atan(oppositeLen/adjacentLen)
 
+
+        let timeDif = Math.round(performance.now()-this.startTime)
+
+      
+        if((timeDif % this.SHOT_INTERVAL >= 0 && timeDif % this.SHOT_INTERVAL <= timePassedSinceLastRender) && this.nShotsFired < 1){
+            //shot projectile
+            this.nShotsFired += 1;
+            //console.log("Firing!")
+
+            let newProjectile = new Projectile(
+                this.getPlayerArmPosition().x,
+                this.getPlayerArmPosition().y,
+                10,
+                10,
+                {
+                    x: this.getPlayerArmPosition().x,
+                    y: this.getPlayerArmPosition().y
+                },
+                {
+                    x: defender.getPlayerArmPosition().x ,
+                    y: defender.getPlayerArmPosition().y
+                }
+            )
+
+            newProjectile.projectileVelocity = 10;
+            newProjectile.shotFrom = this
+            
+            projectiles.push(newProjectile)
+            
+        }
+        else if((timeDif % this.BURST_INTERVAL >= 0 && timeDif % this.BURST_INTERVAL <= timePassedSinceLastRender)){
+            //console.log("Hello")
+            this.nShotsFired = 0;
+            this.startTime = performance.now();
+        }
+
         this.setEnemyState();
 
+        
     }
 
     setEnemyState(){
@@ -182,7 +229,7 @@ class GroundEnemy extends GenericObject{
         ctx.fillRect(
             -20,
             0,
-            Math.round(40 * (this.health/100)),
+            Math.round(40 * (this.health/this.startHealth)),
             5
         )
 

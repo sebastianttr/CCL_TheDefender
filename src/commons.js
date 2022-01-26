@@ -3,7 +3,9 @@ const CONFIG = {
     canvas: {
         width:1280,
         height: 720
-    }
+    },
+    skyEnemiesLimit: 2,
+    groundEnemiesLimit: 32
 }
 
 let canvas = document.getElementById("canvas");

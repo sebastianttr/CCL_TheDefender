@@ -11,6 +11,7 @@ class Defender extends GenericObject{
     #HAND_Y = 21;       //px
 
     projectileDamage = 30;
+    health = 1000;
 
     constructor(x,y,height,width, spritesheets,groundLevel){
         super(x,y,height,width);
@@ -57,22 +58,24 @@ class Defender extends GenericObject{
 
         canvas.addEventListener("mousedown", () => {
             //if(projectiles.length < 1)
-                projectiles.push(
-                    new Projectile(
-                        this.getPlayerArmPosition().x,
-                        this.getPlayerArmPosition().y,
-                        10,
-                        10,
-                        {
-                            x: this.getPlayerArmPosition().x,
-                            y: this.getPlayerArmPosition().y
-                        },
-                        {
-                            x: this.mousePositions.x,
-                            y: this.mousePositions.y
-                        }
-                    )
-                )
+            let newProj = new Projectile(
+                this.getPlayerArmPosition().x,
+                this.getPlayerArmPosition().y,
+                10,
+                10,
+                {
+                    x: this.getPlayerArmPosition().x,
+                    y: this.getPlayerArmPosition().y
+                },
+                {
+                    x: this.mousePositions.x,
+                    y: this.mousePositions.y
+                }
+            )
+
+            newProj.shotFrom = this
+
+            projectiles.push(newProj)
         })
 
         this.sprites["idle"] = 
