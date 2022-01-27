@@ -182,22 +182,40 @@ let mainScene = new Cue({
         this.userInterface = new UserInterface(this.assets.uiImage1,this.assets.uiImage2,this.assets.head);
 
         //gameObjects.push(new Vehicle(600, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
-        gameObjects.push(new Vehicle(600, 100, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
-        gameObjects.push(new Vehicle(1500, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
-        gameObjects.push(new Vehicle(2500, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
 
-        gameObjects.push(new Crate(600 - this.assets.playerSpriteIdle.extras.frameSize.width - this.assets.crate1.width,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
-        gameObjects.push(new Crate(1200,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
 
-        gameObjects.push(new Billboard(1200, 0, this.assets.billboard1.width, this.assets.billboard1.height, this.assets.billboard1))
-        gameObjects.push(new Billboard(2000, 0, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
+
+       
+
+        gameObjects.push(new Billboard(600, 20, this.assets.billboard1.width, this.assets.billboard1.height, this.assets.billboard1))
+        gameObjects.push(new Billboard(2500, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
+        gameObjects.push(new Billboard(4000, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard1))
+        gameObjects.push(new Billboard(6000, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
+        gameObjects.push(new Billboard(7600, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard1))
+
+        gameObjects.push(new Vehicle(1900, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
+        gameObjects.push(new Vehicle(6600, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
+        gameObjects.push(new Vehicle(3400, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle1))
+        gameObjects.push(new Vehicle(6500, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle2))
+        gameObjects.push(new Vehicle(7000, 0, this.assets.vehicle2.width, this.assets.vehicle2.height, this.assets.vehicle1))
+
+        gameObjects.push(new Crate(700,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
         gameObjects.push(new Crate(1200,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+        gameObjects.push(new Crate(2400,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+        gameObjects.push(new Crate(4500,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+        gameObjects.push(new Crate(5500,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+        gameObjects.push(new Crate(6000,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+        gameObjects.push(new Crate(7300,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
+
+        
 
         //gameObjects.push(new GroundEnemy(400,0,61,147,{...this.assets},15));
 
         this.spawnGroundEnemiesAtBeginning();
 
         gameObjects.push(new SkyEnemy(200,0,230,129,this.assets.skyEnemy1,30))
+        gameObjects.push(new SkyEnemy(200,this.assets.groundImg1.naturalWidth/2,230,129,this.assets.skyEnemy2,30))
+
 
         this.initDone = true;
 

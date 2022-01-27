@@ -121,9 +121,9 @@ class UserInterface {
         // render health bar
 
         ctx.fillRect(
-            60,
             30,
-            120,
+            20,
+            300,
             5
         )
 
@@ -132,10 +132,10 @@ class UserInterface {
      
 
         ctx.fillRect(
-            60,
+            30,
             10,
-            120 * (defender.health / 1000),
-            20
+            300 * (defender.health / 1000),
+            10
         )
 
 
