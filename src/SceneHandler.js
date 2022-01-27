@@ -7,7 +7,7 @@ class SceneHandler {
     setScene(scene) {
         //stop current scene.
         if(this.currentScene != null){
-            console.log("Stopping current scene")
+            //console.log("Stopping current scene")
             this.currentScene.stop();
         }
             

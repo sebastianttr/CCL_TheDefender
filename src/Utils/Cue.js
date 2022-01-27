@@ -16,7 +16,6 @@ class Cue {
     constructor(setup){
         // set all the properties
         this.setupProperties = setup.setupProperties;
-        this.#destructureProperties();
 
         // set all the lifecycle hooks
         this.#init = setup.init;
@@ -27,7 +26,6 @@ class Cue {
 
         // set methods and bind "this" context
         this.methods = setup.methods;
-        this.#destructureMethods();
 
         this.preloads = setup.preloads;
     }
@@ -35,6 +33,9 @@ class Cue {
     start(){
         //preload objects - promise based
         this.preloadAssets().then(() => {
+            this.#destructureProperties();
+            this.#destructureMethods();
+
             this.#init();
 
             this.loop = this.loop.bind(this);
@@ -45,7 +46,8 @@ class Cue {
     }
 
     stop(){
-        console.log("stopping" , this.#requestAnimationFrameID)
+        this.setupProperties = null;
+        this.preloads = null;
         this.#run = false;
     }
 

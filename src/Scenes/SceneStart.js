@@ -68,18 +68,18 @@ let startMenuScene = new Cue(
             canvas.setAttribute("height", CONFIG.canvas.height);
             this.defenderStart = new Defender(400,100,61,147,{...this.assets},100);
             this.button1 = new CollisionButton(CONFIG.canvas.width/2, CONFIG.canvas.height/2 + 100,0,0,"Start","Jump here to start");
-            console.log("Showing main menu screen")
+            //console.log("Showing main menu screen")
+            this.run = false;
         },
         update(timeDelta){
             if(checkCollisionBetween(this.defenderStart, this.button1)){
                 this.button1.isHovering = true;
                 //console.log("colision",this.defenderStart.dy)
 
-                console.log(this.run)
                 if(this.defenderStart.y > this.defenderStart.groundLevel && !this.run){
-                    console.log("change scene")
+                    //console.log("change scene")
                     sceneHandler.setScene(mainScene)
-                    this.defenderStart.allowShooting = false;
+                    this.defenderStart.stopMouseEvents();
                     this.run = true
                 }
             }
@@ -87,7 +87,7 @@ let startMenuScene = new Cue(
                 this.button1.isHovering = false;
             } 
 
-            console.log("Still updateing")
+            //console.log("Still updateing")
             this.defenderStart.update(timeDelta);
         },
         render(){

@@ -11,6 +11,11 @@ import SkyEnemy from "./GameObject/SkyEnemy.js";
 import UserInterface from "./Utils/UserInterface.js";
 import { checkCollisionBetween,checkCollisionDirectional,  } from "./Utils/CollisionDetection.js";
 
+import {sceneHandler} from "./script.js";
+import {sceneWin} from "./Scenes/SceneWin.js"
+import SceneHandler from "./SceneHandler.js";
+import { sceneLoss } from "./Scenes/SceneLose.js";
+
 
 let defender = null;
 let gameObjects = [];
@@ -155,16 +160,24 @@ let mainScene = new Cue({
         canvasYPosition : 0,
         isPlayerBounding:false,
         groundLevel:0,
-        nEnemiesKilled: 0
+        nEnemiesKilled: 0,
+        initDone: false
     },
     init(){
         canvas.setAttribute("width", this.canvasWidth);
         canvas.setAttribute("height", this.canvasHeight);
+        console.log("Running main init")
+
+        gameObjects.length = 0;
+        projectiles.length = 0;
+        
 
         this.background = new BackgroundHandler(this.assets.groundImg1,0,0,"canvas");   
 
         defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
         //this.gameObjects.push(this.defender);
+        skyEnemiesShotCounter = 0;
+        groundEnemiesShotCounter = 0;
 
         this.userInterface = new UserInterface(this.assets.uiImage1,this.assets.uiImage2,this.assets.head);
 
@@ -185,6 +198,8 @@ let mainScene = new Cue({
         this.spawnGroundEnemiesAtBeginning();
 
         gameObjects.push(new SkyEnemy(200,0,230,129,this.assets.skyEnemy1,30))
+
+        this.initDone = true;
 
     },
     update(timePassedSinceLastRender){
@@ -303,8 +318,19 @@ let mainScene = new Cue({
             gameObjects.splice(gameObjects.indexOf(enemy),1);
             //console.log("Remove a enemy");
         })
+
+
+        if(skyEnemiesShotCounter >= 1 && groundEnemiesShotCounter >= 16){
+            //console.log("changing scene")
+            sceneHandler.setScene(sceneWin);
+            this.initDone = false
+        }
+        else if(defender.health <= 0){
+            sceneHandler.setScene(sceneLoss);
+        }
         
         this.userInterface.update();
+    
     },
     render(){
         ctx.resetTransform();

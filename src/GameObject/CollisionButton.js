@@ -66,7 +66,7 @@ class CollisionButton extends GenericObject{
             200,
             200
         )
-        ctx.font = "30px Gamefont";
+        ctx.font = "28px Gamefont";
         ctx.textAlign = "center";
         
 

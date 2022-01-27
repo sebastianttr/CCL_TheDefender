@@ -48,43 +48,44 @@ class Defender extends GenericObject{
         this.init();
     }
 
+    handleMousePosition(e){
+        let clientRect = canvas.getBoundingClientRect();
+        this.mousePositions.x = Math.round(e.clientX - clientRect.left)
+        this.mousePositions.y = Math.round(e.clientY - clientRect.top)   
+    }
+
+    handleMouseClick(e){
+        let newProj = new Projectile(
+            this.getPlayerArmPosition().x,
+            this.getPlayerArmPosition().y,
+            10,
+            10,
+            {
+                x: this.getPlayerArmPosition().x,
+                y: this.getPlayerArmPosition().y
+            },
+            {
+                x: this.mousePositions.x,
+                y: this.mousePositions.y
+            }
+        )
+
+        newProj.shotFrom = this
+
+        projectiles.push(newProj)
+    }
+
+    stopMouseEvents(){
+        canvas.onmousemove = null;
+        canvas.onmousedown = null;
+    }
 
     init(){
         // set the key handler
         this.keyboardHandler = new KeyboardHandler({nocallbacks:true});
 
-        canvas.addEventListener("mousemove",(e)=>{
-            if(this.allowShooting){
-                let clientRect = canvas.getBoundingClientRect();
-                this.mousePositions.x = Math.round(e.clientX - clientRect.left)
-                this.mousePositions.y = Math.round(e.clientY - clientRect.top)
-            }
-            //console.log(this.mousePositions.x)
-        })
-
-        canvas.addEventListener("mousedown", () => {
-            //if(projectiles.length < 1)
-            if(this.allowShooting){
-                let newProj = new Projectile(
-                    this.getPlayerArmPosition().x,
-                    this.getPlayerArmPosition().y,
-                    10,
-                    10,
-                    {
-                        x: this.getPlayerArmPosition().x,
-                        y: this.getPlayerArmPosition().y
-                    },
-                    {
-                        x: this.mousePositions.x,
-                        y: this.mousePositions.y
-                    }
-                )
-
-                newProj.shotFrom = this
-
-                projectiles.push(newProj)
-            }
-        })
+        canvas.onmousemove = this.handleMousePosition.bind(this)
+        canvas.onmousedown = this.handleMouseClick.bind(this)
 
         this.sprites["idle"] = 
             new Sprite(
