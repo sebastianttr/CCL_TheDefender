@@ -1,12 +1,7 @@
-import Defender from "../GameObject/Defender.js";
 import Cue from "../Utils/Cue.js";
-import {ctx,CONFIG,canvas} from "../commons.js"
-import CollisionButton from "../GameObject/CollisionButton.js";
-import { checkCollisionBetween } from "../Utils/CollisionDetection.js";
-import {sceneHandler} from "../script.js";
-import {mainScene} from "../SceneMain.js"
 
-let startMenuScene = new Cue(
+
+let sceneWin = new Cue(
     {
         preloads:{
             defenderHead: {
@@ -59,57 +54,41 @@ let startMenuScene = new Cue(
             }
         },
         setupProperties:{
-            defenderStart: null,
-            button1:null,
-            run:false
+            defenderEnd: null,
+            button:null,
+            sceneChange: false
         },
         init(){
             canvas.setAttribute("width", CONFIG.canvas.width);
             canvas.setAttribute("height", CONFIG.canvas.height);
-            this.defenderStart = new Defender(400,100,61,147,{...this.assets},100);
-            this.button1 = new CollisionButton(CONFIG.canvas.width/2, CONFIG.canvas.height/2 + 100,0,0,"Start","Jump here to start");
-            console.log("Showing main menu screen")
+            this.defenderEnd = new Defender(400,100,61,147,{...this.assets},100);
+            this.button = new CollisionButton(CONFIG.canvas.width/2, CONFIG.canvas.height/2 + 100);
+            console.log("Showing Win Scene")
         },
-        update(timeDelta){
-            if(checkCollisionBetween(this.defenderStart, this.button1)){
-                this.button1.isHovering = true;
+        update(){
+            
+            if(checkCollisionBetween(this.defenderStart, this.button)){
+                this.button.isHovering = true;
                 //console.log("colision",this.defenderStart.dy)
 
-                console.log(this.run)
-                if(this.defenderStart.y > this.defenderStart.groundLevel && !this.run){
+                if(this.defenderStart.y > this.defenderStart.groundLevel && !this.sceneChange){
                     console.log("change scene")
                     sceneHandler.setScene(mainScene)
-                    this.defenderStart.allowShooting = false;
-                    this.run = true
+                    this.sceneChange = true
+                    this.defenderStart = null
+                    this.stop();
                 }
             }
             else{
-                this.button1.isHovering = false;
+                this.button.isHovering = false;
             } 
 
-            console.log("Still updateing")
+            this.defenderStart.isPushing = false;
             this.defenderStart.update(timeDelta);
         },
         render(){
-            // draw a grey background
-            //console.log("Drawing img")
-            ctx.resetTransform();
-            ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
 
-
-            ctx.drawImage(
-                this.assets.mainMenuImg,
-                0,
-                0,
-                1280,
-                this.assets.mainMenuImg.naturalHeight
-            )
-            
-            this.button1.render();
-            this.defenderStart.render();
-        },
+        }
 
     }
 )
-
-export {startMenuScene}

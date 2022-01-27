@@ -1,5 +1,5 @@
 import {ctx, CONFIG} from "../commons.js"
-import { defender,skyEnemiesShotCounter,groundEnemiesShotCounter } from "../index.js";
+import { defender,skyEnemiesShotCounter,groundEnemiesShotCounter } from "../SceneMain.js";
 
 class UserInterface {
 

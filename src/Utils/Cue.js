@@ -5,12 +5,13 @@
  */
 
 class Cue {
-
     #init;
     #update;
     #render;
     lastTickTimestamp;
     assets = {};
+    #requestAnimationFrameID;
+    #run = false;
 
     constructor(setup){
         // set all the properties
@@ -38,12 +39,14 @@ class Cue {
 
             this.loop = this.loop.bind(this);
             this.lastTickTimestamp = performance.now();
+            this.#run = true;
             this.loop();
         })
     }
 
     stop(){
-
+        console.log("stopping" , this.#requestAnimationFrameID)
+        this.#run = false;
     }
 
     preloadAssets(){
@@ -84,18 +87,22 @@ class Cue {
 
     loop(){
         //how much time has passed since the last tick
+
+
         let timePassedSinceLastRender = performance.now() - this.lastTickTimestamp;
         this.timePassedSinceLastRender = timePassedSinceLastRender;
 
-        this.#update(timePassedSinceLastRender);
-        this.#render();
-
-        
+        if(this.#run){
+            this.#update(timePassedSinceLastRender);
+            this.#render();
+        }
 
         //set lastTickTimestamp to "now"
         this.lastTickTimestamp = performance.now();
         //call next iteration of the game loop
-        requestAnimationFrame(this.loop);
+       
+        this.#requestAnimationFrameID = requestAnimationFrame(this.loop);
+        
     }
 }
 

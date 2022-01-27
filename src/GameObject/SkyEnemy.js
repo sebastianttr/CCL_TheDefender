@@ -1,6 +1,6 @@
 import GenericObject from "./Generics/GenericObject.js";
 import {CONFIG,canvas,ctx,map} from "../commons.js"
-import { defender , projectiles } from "../index.js";
+import { defender , projectiles } from "../SceneMain.js";
 import Projectile from "./Projectile.js";
 import Laser from "./Laser.js";
 

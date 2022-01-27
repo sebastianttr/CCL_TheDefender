@@ -4,7 +4,7 @@ import Sprite from "../Utils/Sprite.js";
 import Projectile from "./Projectile.js";
 import {CONFIG,canvas,ctx,map} from "../commons.js"
 import { checkCollisionBetween, checkCollisionDirectional } from "../Utils/CollisionDetection.js";
-import {gameObjects,projectiles} from "../index.js"
+import {gameObjects,projectiles} from "../SceneMain.js"
 
 class Defender extends GenericObject{
     #HAND_X = 38;       //px
@@ -43,40 +43,47 @@ class Defender extends GenericObject{
         this.canJump = true
         this.isPushing = false;
 
+        this.allowShooting = true;
+
         this.init();
     }
+
 
     init(){
         // set the key handler
         this.keyboardHandler = new KeyboardHandler({nocallbacks:true});
 
         canvas.addEventListener("mousemove",(e)=>{
-            let clientRect = canvas.getBoundingClientRect();
-            this.mousePositions.x = Math.round(e.clientX - clientRect.left)
-            this.mousePositions.y = Math.round(e.clientY - clientRect.top)
+            if(this.allowShooting){
+                let clientRect = canvas.getBoundingClientRect();
+                this.mousePositions.x = Math.round(e.clientX - clientRect.left)
+                this.mousePositions.y = Math.round(e.clientY - clientRect.top)
+            }
             //console.log(this.mousePositions.x)
         })
 
         canvas.addEventListener("mousedown", () => {
             //if(projectiles.length < 1)
-            let newProj = new Projectile(
-                this.getPlayerArmPosition().x,
-                this.getPlayerArmPosition().y,
-                10,
-                10,
-                {
-                    x: this.getPlayerArmPosition().x,
-                    y: this.getPlayerArmPosition().y
-                },
-                {
-                    x: this.mousePositions.x,
-                    y: this.mousePositions.y
-                }
-            )
+            if(this.allowShooting){
+                let newProj = new Projectile(
+                    this.getPlayerArmPosition().x,
+                    this.getPlayerArmPosition().y,
+                    10,
+                    10,
+                    {
+                        x: this.getPlayerArmPosition().x,
+                        y: this.getPlayerArmPosition().y
+                    },
+                    {
+                        x: this.mousePositions.x,
+                        y: this.mousePositions.y
+                    }
+                )
 
-            newProj.shotFrom = this
+                newProj.shotFrom = this
 
-            projectiles.push(newProj)
+                projectiles.push(newProj)
+            }
         })
 
         this.sprites["idle"] = 
@@ -133,8 +140,8 @@ class Defender extends GenericObject{
 
 
         // limit 
-        if(this.y <= 0) {
-            this.y = 0;
+        if(this.y <= this.groundLevel) {
+            this.y = this.groundLevel;
             this.velocityY = 0
             this.canJump = true
         }
