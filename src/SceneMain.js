@@ -149,7 +149,7 @@ let mainScene = new Cue({
                     height: 147,
                 },
             }
-        }
+        },
     },
     setupProperties:{
         canvasHeight: CONFIG.canvas.height,
@@ -170,11 +170,11 @@ let mainScene = new Cue({
 
         gameObjects.length = 0;
         projectiles.length = 0;
-        
 
         this.background = new BackgroundHandler(this.assets.groundImg1,0,0,"canvas");   
+        //background = this.shiftObjectRelativeToPlayer(this.background,false)
 
-        defender = new Defender(100,200,61,147,{...this.assets},this.groundLevel);
+        defender = new Defender(500,200,61,147,{...this.assets},this.groundLevel);
         //this.gameObjects.push(this.defender);
         skyEnemiesShotCounter = 0;
         groundEnemiesShotCounter = 0;
@@ -182,11 +182,7 @@ let mainScene = new Cue({
         this.userInterface = new UserInterface(this.assets.uiImage1,this.assets.uiImage2,this.assets.head);
 
         //gameObjects.push(new Vehicle(600, 0, this.assets.vehicle1.width, this.assets.vehicle1.height, this.assets.vehicle1))
-
-
-
-       
-
+ 
         gameObjects.push(new Billboard(600, 20, this.assets.billboard1.width, this.assets.billboard1.height, this.assets.billboard1))
         gameObjects.push(new Billboard(2500, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard2))
         gameObjects.push(new Billboard(4000, 20, this.assets.billboard2.width, this.assets.billboard2.height, this.assets.billboard1))
@@ -207,14 +203,11 @@ let mainScene = new Cue({
         gameObjects.push(new Crate(6000,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
         gameObjects.push(new Crate(7300,0, this.assets.crate1.width, this.assets.crate1.height,this.assets.crate1))
 
-        
-
-        //gameObjects.push(new GroundEnemy(400,0,61,147,{...this.assets},15));
 
         this.spawnGroundEnemiesAtBeginning();
 
         gameObjects.push(new SkyEnemy(200,0,230,129,this.assets.skyEnemy1,30))
-        gameObjects.push(new SkyEnemy(200,this.assets.groundImg1.naturalWidth/2,230,129,this.assets.skyEnemy2,30))
+        gameObjects.push(new SkyEnemy(this.assets.groundImg1.naturalWidth/2,0,230,129,this.assets.skyEnemy2,30))
 
 
         this.initDone = true;
@@ -359,7 +352,7 @@ let mainScene = new Cue({
         // set scene position
 
         
-        this.background = this.shiftObjectRelativeToPlayer(this.background , true);
+        this.background = this.shiftObjectRelativeToPlayer(this.background, true);
         this.background.render();
 
         gameObjects.forEach((gameObject) => {  
@@ -383,19 +376,19 @@ let mainScene = new Cue({
                 if(this.background.x <= 
                     (this.background.backgroundImg.width - 4)-CONFIG.canvas.width){
                         if(reverse){
-                            gameObject.x += 4; 
+                            gameObject.x += 5; 
                         }
                         else {
-                            gameObject.x -= 4;
+                            gameObject.x -= 5;
                         }
                     } 
             }
             else if(defender.boundingState == "left"){
                 if(this.background.x >= 4){
                     if(reverse){
-                        gameObject.x -= 4;
+                        gameObject.x -= 5;
                     }else {
-                        gameObject.x += 4;
+                        gameObject.x += 5;
                     }
                     
                 }      

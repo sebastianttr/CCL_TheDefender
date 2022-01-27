@@ -9,9 +9,7 @@ class Sprite {
         this.spriteFrameIndex = 0;
         
         this.currentTimeStamp = 0;
-    }   
-
-    
+    }
     
     getSpriteFrame(isReverse){
         let currentFrame; 
@@ -40,7 +38,6 @@ class Sprite {
             }
         }
         else {
-
             currentFrame = Math.floor(
                 ((performance.now() / 1000) * this.fps) % this.nFrames
             );
@@ -54,14 +51,14 @@ class Sprite {
             sourceHeight: this.frameSize.height,
           };
     }
-
-
-    runSpriteOnce(){
-        
-    }
-
-
-    
+    getSpecificSpriteFrame(n){
+        return {
+            sourceX: n * this.frameSize.width, // TODO
+            sourceY: 0,
+            sourceWidth: this.frameSize.width,
+            sourceHeight: this.frameSize.height,
+        };
+    }    
 }
 
 export default Sprite;

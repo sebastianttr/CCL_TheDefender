@@ -13,6 +13,8 @@ class Defender extends GenericObject{
     projectileDamage = 30;
     health = 1000;
 
+    jumpHeight = 200 // this is taken from console
+
     constructor(x,y,height,width, spritesheets,groundLevel){
         super(x,y,height,width);
 
@@ -101,7 +103,6 @@ class Defender extends GenericObject{
                 this.spritesheets.playerSpriteRun.extras.frames,
                 this.spritesheets.playerSpriteRun.extras.fps,
                 this.spritesheets.playerSpriteRun.extras.frameSize,
-                //{ramp:true}
             )
 
         this.sprites["jump"] = 
@@ -110,7 +111,6 @@ class Defender extends GenericObject{
                 this.spritesheets.playerSpriteJump.extras.frames,
                 this.spritesheets.playerSpriteJump.extras.fps,
                 this.spritesheets.playerSpriteJump.extras.frameSize,
-                //{ramp:true}
             )
     }
 
@@ -133,7 +133,6 @@ class Defender extends GenericObject{
         if((this.keyboardHandler.keys["Space"] || this.keyboardHandler.keys["KeyW"]) && this.velocityY == 0 && this.canJump){
             this.velocityY = 50;
         }
-
 
         //calculate velocity
         this.velocityY -= timePassedSinceLastRender * this.gravity  / 50
@@ -175,7 +174,6 @@ class Defender extends GenericObject{
 
         //console.log(this.armAngle)
     
-
         this.spriteDirection = (this.mousePositions.x >= headPos.x)?1:-1;
         
         this.headElevation = 10 * map(this.headAngle * this.spriteDirection,0,-Math.PI/2 * this.spriteDirection,0,this.spriteDirection);   // 10 seem like a good value to elevate between
@@ -183,6 +181,8 @@ class Defender extends GenericObject{
         if(this.health <= 0){
             this.health = 0;
         }
+
+
     }
 
     getBoundaries(){
@@ -196,8 +196,10 @@ class Defender extends GenericObject{
     setPlayerState(){
         if(this.dx != 0)        // run
             this.translateState = "run"
-        else if(this.y != 0)    // jumping
+        else if(Math.round(this.y - this.jumpHeight) >= 0){    // jumping{
             this.translateState = "jump"
+            //console.log("Jump")
+        }
         else                    // idle
             this.translateState = "idle"
     }
@@ -214,10 +216,6 @@ class Defender extends GenericObject{
             x:  this.x + this.spritesheets.defenderHead.naturalWidth/2,
             y: -this.y + CONFIG.canvas.height - 50 - (this.height * 0.60)
         }
-    }
-
-    getPlayerHandPosition() {
-
     }
 
     render() {
@@ -240,14 +238,22 @@ class Defender extends GenericObject{
 
         ctx.resetTransform();
 
-       
-
-
         // render body
         ctx.translate(this.x + this.width / 2, -this.y -this.height / 2 + CONFIG.canvas.height - 50);
         ctx.scale(this.spriteDirection,1);
 
-        let currentFrame = this.sprites[this.translateState].getSpriteFrame("up");
+        let currentFrame;
+
+
+        if(this.translateState === "jump"){
+            let frameNumber = Math.round(map(this.y - this.groundLevel,100,this.jumpHeight,1,4))
+            //console.log(frameNumber)
+            currentFrame = this.sprites[this.translateState].getSpecificSpriteFrame(frameNumber)
+            currentFrame.sourceHeight += 20
+        }
+        else {
+            currentFrame = this.sprites[this.translateState].getSpriteFrame("up");
+        }
 
         ctx.drawImage(
             this.sprites[this.translateState].spritesheet,
@@ -262,7 +268,6 @@ class Defender extends GenericObject{
         );
 
         ctx.resetTransform();
-
 
          // render arm
         ctx.translate(
