@@ -1,5 +1,5 @@
 const CONFIG = {
-    debug:true,
+    debug:false,
     canvas: {
         width:1280,
         height: 720
