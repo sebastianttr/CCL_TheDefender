@@ -196,7 +196,7 @@ class Defender extends GenericObject{
     setPlayerState(){
         if(this.dx != 0)        // run
             this.translateState = "run"
-        else if(Math.round(this.y - this.jumpHeight) >= 0){    // jumping{
+        else if(this.dy < 0){    // jumping{
             this.translateState = "jump"
             //console.log("Jump")
         }
@@ -254,6 +254,7 @@ class Defender extends GenericObject{
         else {
             currentFrame = this.sprites[this.translateState].getSpriteFrame("up");
         }
+        console.log(this.translateState)
 
         ctx.drawImage(
             this.sprites[this.translateState].spritesheet,
